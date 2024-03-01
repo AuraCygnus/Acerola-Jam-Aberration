@@ -1002,12 +1002,12 @@ MonoBehaviour:
     rigidBody: {fileID: 6934137017606725683}
   - collider: {fileID: 171832127605350055}
     rigidBody: {fileID: 8908797137497725960}
-  - collider: {fileID: 0}
-    rigidBody: {fileID: 0}
-  - collider: {fileID: 0}
-    rigidBody: {fileID: 0}
-  - collider: {fileID: 0}
-    rigidBody: {fileID: 0}
+  - collider: {fileID: 4627028807980922466}
+    rigidBody: {fileID: 1615458307294238120}
+  - collider: {fileID: 5752495235907759351}
+    rigidBody: {fileID: 2736190653602004499}
+  - collider: {fileID: 3320747843994452079}
+    rigidBody: {fileID: 3732540693096432856}
   navAgent: {fileID: 5469554371788707562}
 --- !u!195 &5469554371788707562
 NavMeshAgent:

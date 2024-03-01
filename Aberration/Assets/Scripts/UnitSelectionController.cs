@@ -1,3 +1,4 @@
+using Aberration.Assets.Scripts;
 using Aberration.Assets.Scripts.Utils;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,7 +11,13 @@ namespace Aberration
 		private Camera selectionCamera;
 
 		[SerializeField]
-		private int selectionMask;
+		private int unitMask;
+
+		[SerializeField]
+		private int bodyPartMask;
+
+		[SerializeField]
+		private int groundMask;
 
 		[SerializeField]
 		private float maxRayDistance = 1000;
@@ -19,6 +26,7 @@ namespace Aberration
 		private float yeetForceMultiplier = 3f;
 
 		private List<Collider> selectedObjects;
+		private List<Collider> selectedBodyParts;
 
 		private Vector3 selectStartLocation;
 		private Vector3 selectRay;
@@ -30,12 +38,17 @@ namespace Aberration
 
 		private void Update()
 		{
-			if (Input.GetMouseButtonDown(0))
+			bool leftClickDown = Input.GetMouseButtonDown(0);
+			bool leftClickUp = Input.GetMouseButtonUp(0);
+			bool rightClickDown = Input.GetMouseButtonDown(1);
+			bool rightClickUp = Input.GetMouseButtonUp(1);
+
+			if (leftClickDown)
 			{
 				selectStartLocation = GetMouseClickPosition();
 			}
 
-			if (Input.GetMouseButtonUp(0))
+			if (leftClickUp)
 			{
 				Vector3 selectEndLocation = GetMouseClickPosition();
 
@@ -54,19 +67,24 @@ namespace Aberration
 			int numSelectedObjects = selectedObjects.SafeCount();
 			if (numSelectedObjects > 0)
 			{
-				if (Input.GetMouseButtonDown(1))
+				if (rightClickDown)
 				{
 					dragStartLocation = GetMouseClickPosition();
 				}
 
-				if (Input.GetMouseButtonUp(1))
+				if (rightClickUp)
 				{
 					Vector3 dragEndLocation = GetMouseClickPosition();
-					Vector3 force = (dragEndLocation - dragStartLocation) * yeetForceMultiplier;
-					foreach (var collider in selectedObjects)
+
+					Vector3 diff = dragEndLocation - dragStartLocation;
+					float lengthSq = Vector3.SqrMagnitude(diff);
+					if (lengthSq <= SingleTargetSelectionRangeSq)
 					{
-						if (collider.attachedRigidbody != null)
-							collider.attachedRigidbody.AddForce(force);
+						TrySettingMoveDestination(dragEndLocation);
+					}
+					else
+					{
+						TryYeeting(diff);
 					}
 				}
 			}
@@ -76,14 +94,52 @@ namespace Aberration
 		{
 			Vector3 cameraLocation = selectionCamera.transform.position;
 			selectRay = selectLocation - cameraLocation;
-			if (Physics.Raycast(cameraLocation, selectRay, out RaycastHit hit, maxRayDistance, ~selectionMask))
-			{
+			if (Physics.Raycast(cameraLocation, selectRay, out RaycastHit unitHit, maxRayDistance, ~(1 >> unitMask)))
+			{					
 				selectedObjects.SafeClear();
-				ListUtils.SafeAdd(ref selectedObjects, hit.collider);
+				ListUtils.SafeAdd(ref selectedObjects, unitHit.collider);
+
+				// Check for a body part selection
+				if (Physics.Raycast(cameraLocation, selectRay, out RaycastHit bodyHit, maxRayDistance, ~(1 >> bodyPartMask)))
+				{
+					selectedBodyParts.SafeClear();
+					ListUtils.SafeAdd(ref selectedBodyParts, bodyHit.collider);
+				}
 			}
 			else
 			{
 				selectedObjects.SafeClear();
+			}
+		}
+
+		private void TrySettingMoveDestination(Vector3 selectLocation)
+		{
+			Vector3 cameraLocation = selectionCamera.transform.position;
+			selectRay = selectLocation - cameraLocation;
+			if (Physics.Raycast(cameraLocation, selectRay, out RaycastHit moveHit, maxRayDistance, ~(1 >> groundMask)))
+			{
+				foreach (Collider collider in selectedObjects)
+				{
+					Unit unit = collider.GetComponent<Unit>();
+					if (unit != null)
+					{
+						unit.SetMoveLocation(moveHit.point);
+					}
+				}
+			}
+		}
+
+		private void TryYeeting(Vector3 diff)
+		{
+			if (selectedBodyParts != null)
+			{
+				Vector3 force = diff * yeetForceMultiplier;
+
+				foreach (var collider in selectedBodyParts)
+				{
+					if (collider.attachedRigidbody != null)
+						collider.attachedRigidbody.AddForce(force);
+				}
 			}
 		}
 
@@ -103,5 +159,4 @@ namespace Aberration
 			Gizmos.DrawLine(cameraPos, cameraPos + ray);
 		}
 	}
-
 }

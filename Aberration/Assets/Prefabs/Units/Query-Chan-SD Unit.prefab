@@ -791,10 +791,10 @@ GameObject:
   m_Component:
   - component: {fileID: 6656592639711571903}
   - component: {fileID: 9204036602602544531}
-  - component: {fileID: 4492230135997106912}
   - component: {fileID: 2594982910386886627}
   - component: {fileID: 5321247672020726721}
   - component: {fileID: 9044923926892621589}
+  - component: {fileID: 4016217523359509955}
   - component: {fileID: 5469554371788707562}
   - component: {fileID: 6348528057973837179}
   m_Layer: 0
@@ -841,19 +841,6 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 760e96f68ce9d4676bb24cd827659796, type: 2}
   - {fileID: 2100000, guid: 8b1c6a380ecb64b1c9c0a553d76cf958, type: 2}
   queryFace: {fileID: 232390960009715519}
---- !u!114 &4492230135997106912
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1925212891629493390}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7309ba7639a4e45bba1436eeb55988dc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  queryBodyParts: {fileID: 4164750978515963111}
 --- !u!114 &2594982910386886627
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1008,7 +995,27 @@ MonoBehaviour:
     rigidBody: {fileID: 2736190653602004499}
   - collider: {fileID: 3320747843994452079}
     rigidBody: {fileID: 3732540693096432856}
+  mainRagdollElement:
+    collider: {fileID: 476843118000007203}
+    rigidBody: {fileID: 4745527012594145985}
   navAgent: {fileID: 5469554371788707562}
+  animationController: {fileID: 4016217523359509955}
+  stillYeetingMinVelocity: 0.5
+  recoverTimeSecs: 3
+--- !u!114 &4016217523359509955
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1925212891629493390}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58d5643116e635744a74f9d3ffe8574e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animator: {fileID: 8389526241269329780}
+  emoControl: {fileID: 9204036602602544531}
 --- !u!195 &5469554371788707562
 NavMeshAgent:
   m_ObjectHideFlags: 0

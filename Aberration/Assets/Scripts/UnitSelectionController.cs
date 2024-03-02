@@ -25,6 +25,12 @@ namespace Aberration
 		[SerializeField]
 		private float yeetForceMultiplier = 3f;
 
+		/// <summary>
+		/// How muhc upward force to add to yeet
+		/// </summary>
+		[SerializeField]
+		private float yeetRise = 3f;
+
 		private List<Collider> selectedObjects;
 		private List<Collider> selectedBodyParts;
 
@@ -133,12 +139,16 @@ namespace Aberration
 		{
 			if (selectedBodyParts != null)
 			{
+				diff.y = yeetRise;
 				Vector3 force = diff * yeetForceMultiplier;
 
-				foreach (var collider in selectedBodyParts)
+				foreach (Collider collider in selectedObjects)
 				{
-					if (collider.attachedRigidbody != null)
-						collider.attachedRigidbody.AddForce(force);
+					Unit unit = collider.GetComponent<Unit>();
+					if (unit != null)
+					{
+						unit.Yeet(force, selectedBodyParts);
+					}
 				}
 			}
 		}

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -35,7 +36,27 @@ namespace Aberration.Assets.Scripts
 		private RagdollElement[] ragdollElements;
 
 		[SerializeField]
+		private RagdollElement mainRagdollElement;
+
+		[SerializeField]
 		private NavMeshAgent navAgent;
+
+		[SerializeField]
+		private UnitAnimationController animationController;
+
+		/// <summary>
+		/// Minimum velocity at which the Unit is still classed as yeeting
+		/// </summary>
+		[SerializeField]
+		private float stillYeetingMinVelocity = 0.5f;
+
+		[SerializeField]
+		private float recoverTimeSecs = 3f;
+
+		/// <summary>
+		/// Id of team the unit belongs to.
+		/// </summary>
+		private byte teamId;
 
 		/// <summary>
 		/// Last set move location.
@@ -46,6 +67,13 @@ namespace Aberration.Assets.Scripts
 		/// Current Unit state.
 		/// </summary>
 		private UnitState state;
+
+		private float recoverEndTime;
+
+		public void Setup(byte teamId)
+		{
+			this.teamId = teamId;
+		}
 
 		public void SetMoveLocation(Vector3 moveLocation)
 		{
@@ -61,7 +89,7 @@ namespace Aberration.Assets.Scripts
 			// Set nav agent move location
 			if (navAgent.SetDestination(moveLocation))
 			{
-				state = UnitState.Moving;
+				SetMovingState();
 			}
 			else
 			{
@@ -69,10 +97,47 @@ namespace Aberration.Assets.Scripts
 			}
 		}
 
-		private void OnYeet()
+		public void Yeet(Vector3 force, List<Collider> selectedBodyParts)
 		{
-			selectionCollider.enabled = false;
-			SetRagdollEnabled(true);
+			SetYeeted();
+
+			if (selectedBodyParts != null)
+			{
+				bool hasYeetedCollider = false;
+				foreach (var collider in selectedBodyParts)
+				{
+					if (IsOwnCollider(collider))
+					{
+						if (collider.attachedRigidbody != null)
+						{
+							collider.attachedRigidbody.AddForce(force);
+							hasYeetedCollider = true;
+						}
+					}
+				}
+
+				if (!hasYeetedCollider)
+				{
+					// Fall back to yeeting from the main part
+					mainRagdollElement.rigidBody.AddForce(force);
+				}
+			}
+		}
+
+		private bool IsOwnCollider(Collider collider)
+		{
+			foreach (RagdollElement element in ragdollElements)
+			{
+				if (element.collider == collider)
+					return true;
+			}
+
+			return false;
+		}
+
+		public bool IsOwner(byte teamId)
+		{
+			return this.teamId == teamId;
 		}
 
 		private void SetRagdollEnabled(bool isEnabled)
@@ -80,26 +145,64 @@ namespace Aberration.Assets.Scripts
 			foreach (RagdollElement element in ragdollElements)
 			{
 				element.collider.enabled = isEnabled;
+				element.rigidBody.constraints = RigidbodyConstraints.None;
 			}
 		}
 
-		private void OnRecover()
+		#region Set States
+		private void SetMovingState()
+		{
+			navAgent.isStopped = false;
+			animationController.SetMoving();
+			state = UnitState.Moving;
+		}
+
+		private void SetYeeted()
+		{
+			animationController.SetYeeted();
+			navAgent.isStopped = true;
+			selectionCollider.enabled = false;
+			SetRagdollEnabled(true);
+			state = UnitState.Yeeted;
+		}
+
+		private void SetRecovering()
 		{
 			selectionCollider.enabled = true;
 			SetRagdollEnabled(false);
+			animationController.SetRecovering();
+			state = UnitState.Recovering;
+
+			recoverEndTime = Time.time + recoverTimeSecs;
 		}
 
+		private void SetIdleState()
+		{
+			animationController.SetIdle();
+			state = UnitState.Idle;
+		}
+		#endregion
+
+		#region Updates
 		private void Update()
 		{
 			switch (state)
 			{
 				case UnitState.Moving:
-					MovingState();
+					MovingStateUpdate();
+					break;
+
+				case UnitState.Yeeted:
+					YeetedStateUpdate();
+					break;
+
+				case UnitState.Recovering:
+					RecoveringStateUpdate();
 					break;
 			}
 		}
 
-		private void MovingState()
+		private void MovingStateUpdate()
 		{
 			// Check if we've reached the destination
 			if (!navAgent.pathPending)
@@ -108,10 +211,51 @@ namespace Aberration.Assets.Scripts
 				{
 					if (!navAgent.hasPath || navAgent.velocity.sqrMagnitude == 0f)
 					{
-						state = UnitState.Idle;
+						SetIdleState();
 					}
 				}
 			}
 		}
+
+		private void YeetedStateUpdate()
+		{
+			// Check for most movement stopped
+			if (HasFinishedYeeting())
+			{
+				ConstrainRagdoll(RigidbodyConstraints.FreezeAll);
+				SetRecovering();
+			}
+		}
+
+		private bool HasFinishedYeeting()
+		{
+			foreach (RagdollElement element in ragdollElements)
+			{
+				float speed = element.rigidBody.velocity.magnitude;
+				if (speed > stillYeetingMinVelocity)
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		private void ConstrainRagdoll(RigidbodyConstraints constraint)
+		{
+			foreach (RagdollElement element in ragdollElements)
+			{
+				element.rigidBody.constraints = constraint;
+			}
+		}
+
+		private void RecoveringStateUpdate()
+		{
+			if (Time.time > recoverEndTime)
+			{
+				SetIdleState();
+			}
+		}
+		#endregion
 	}
 }

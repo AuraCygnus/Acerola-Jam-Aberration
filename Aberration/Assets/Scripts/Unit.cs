@@ -11,8 +11,10 @@ namespace Aberration.Assets.Scripts
 	[Serializable]
 	public struct RagdollElement
 	{
+		public Transform transform;
 		public Collider collider;
 		public Rigidbody rigidBody;
+		public CharacterJoint joint;
 	}
 
 	/// <summary>
@@ -144,8 +146,19 @@ namespace Aberration.Assets.Scripts
 		{
 			foreach (RagdollElement element in ragdollElements)
 			{
+				// Enable/Disable collider
 				element.collider.enabled = isEnabled;
-				element.rigidBody.constraints = RigidbodyConstraints.None;
+
+				// Enable/Disable Rigid Body
+				element.rigidBody.detectCollisions = isEnabled;
+				element.rigidBody.useGravity = isEnabled;
+
+				// Join is optional as not every part of the ragdoll has one
+				if (element.joint != null)
+				{
+					// Enable/Disable Character Joint
+					element.joint.enableCollision = isEnabled;
+				}
 			}
 		}
 
@@ -222,7 +235,7 @@ namespace Aberration.Assets.Scripts
 			// Check for most movement stopped
 			if (HasFinishedYeeting())
 			{
-				ConstrainRagdoll(RigidbodyConstraints.FreezeAll);
+				StopRagdollVelocity();
 				SetRecovering();
 			}
 		}
@@ -241,11 +254,11 @@ namespace Aberration.Assets.Scripts
 			return true;
 		}
 
-		private void ConstrainRagdoll(RigidbodyConstraints constraint)
+		private void StopRagdollVelocity()
 		{
 			foreach (RagdollElement element in ragdollElements)
 			{
-				element.rigidBody.constraints = constraint;
+				element.rigidBody.velocity = Vector3.zero;
 			}
 		}
 

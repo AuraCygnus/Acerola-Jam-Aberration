@@ -177,6 +177,6 @@ MonoBehaviour:
   unitMask: 6
   groundMask: 8
   maxRayDistance: 1000
-  yeetForceMultiplier: 4
-  mouseYeetTriggerRange: 700
+  yeetForceMultiplier: 0.75
+  mouseYeetTriggerRange: 300
   yeetRise: 1.2

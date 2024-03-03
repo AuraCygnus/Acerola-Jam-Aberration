@@ -1048,9 +1048,9 @@ MonoBehaviour:
     rigidBody: {fileID: 4745527012594145985}
     joint: {fileID: 0}
   recoverAnimClipName: 0060_Pose_Recover
-  timeToResetBones: 2
+  timeToResetBones: 1.5
   recoverAnimStateName: 0060_Pose_Recover
-  recoverTimeSecs: 2
+  recoverTimeSecs: 1
   emoControl: {fileID: 9204036602602544531}
 --- !u!195 &5469554371788707562
 NavMeshAgent:

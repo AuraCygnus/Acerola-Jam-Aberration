@@ -88,6 +88,14 @@ namespace Aberration.Assets.Scripts
 			mainRagdollElement.rigidBody.AddForce(force);
 		}
 
+		public void AddForceToAll(Vector3 force)
+		{
+			foreach (RagdollElement elem in ragdollElements)
+			{
+				elem.rigidBody.AddForce(force);
+			}
+		}
+
 		public bool IsOwnCollider(Collider collider)
 		{
 			foreach (RagdollElement element in ragdollElements)

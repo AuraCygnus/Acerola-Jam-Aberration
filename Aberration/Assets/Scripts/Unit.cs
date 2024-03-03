@@ -81,7 +81,7 @@ namespace Aberration.Assets.Scripts
 			SetYeeted();
 
 			// Fall back to yeeting from the main part
-			animationController.AddForceToMain(force);
+			animationController.AddForceToAll(force);
 		}
 
 		private bool IsOwnCollider(Collider collider)

@@ -25,6 +25,9 @@ namespace Aberration
 		[SerializeField]
 		private float yeetForceMultiplier = 3f;
 
+		[SerializeField]
+		private float mouseYeetTriggerRange = 800f;
+
 		/// <summary>
 		/// How muhc upward force to add to yeet
 		/// </summary>
@@ -84,7 +87,7 @@ namespace Aberration
 
 					Vector3 diff = dragEndLocation - dragStartLocation;
 					float lengthSq = Vector3.SqrMagnitude(diff);
-					if (lengthSq <= SingleTargetSelectionRangeSq)
+					if (lengthSq <= (mouseYeetTriggerRange * mouseYeetTriggerRange))
 					{
 						TrySettingMoveDestination(dragEndLocation);
 					}
@@ -139,7 +142,11 @@ namespace Aberration
 		{
 			if (selectedBodyParts != null)
 			{
-				diff.y = yeetRise;
+				diff.y = 0;
+				float yeetXZMagnitude = diff.magnitude;
+				float yeetUpwards = yeetRise * yeetXZMagnitude;
+				diff.y = yeetUpwards;
+
 				Vector3 force = diff * yeetForceMultiplier;
 
 				foreach (Collider collider in selectedObjects)

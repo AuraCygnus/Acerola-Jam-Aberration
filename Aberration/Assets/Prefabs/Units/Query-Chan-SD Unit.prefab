@@ -963,6 +963,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ff237c816fb6e040a311c9e2251ee39, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mainTransform: {fileID: 6656592639711571903}
   selectionCollider: {fileID: 6348528057973837179}
   ragdollElements:
   - transform: {fileID: 4480115075606635403}

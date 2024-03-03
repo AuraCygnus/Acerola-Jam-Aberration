@@ -25,12 +25,15 @@ namespace Aberration.Assets.Scripts
 		Idle,
 		Moving,
 		Yeeted,
-		Recovering,
+		YeetRecovering,
 		Fighting
 	}
 
 	public class Unit : MonoBehaviour
 	{
+		[SerializeField]
+		private Transform mainTransform;
+
 		[SerializeField]
 		private Collider selectionCollider;
 
@@ -79,7 +82,7 @@ namespace Aberration.Assets.Scripts
 
 		public void SetMoveLocation(Vector3 moveLocation)
 		{
-			if (state == UnitState.Yeeted || state == UnitState.Recovering)
+			if (state == UnitState.Yeeted || state == UnitState.YeetRecovering)
 			{
 				Debug.Log("Unable to move at current");
 				return;
@@ -179,12 +182,12 @@ namespace Aberration.Assets.Scripts
 			state = UnitState.Yeeted;
 		}
 
-		private void SetRecovering()
+		private void SetYeetRecovering()
 		{
 			selectionCollider.enabled = true;
 			SetRagdollEnabled(false);
 			animationController.SetRecovering();
-			state = UnitState.Recovering;
+			state = UnitState.YeetRecovering;
 
 			recoverEndTime = Time.time + recoverTimeSecs;
 		}
@@ -209,8 +212,8 @@ namespace Aberration.Assets.Scripts
 					YeetedStateUpdate();
 					break;
 
-				case UnitState.Recovering:
-					RecoveringStateUpdate();
+				case UnitState.YeetRecovering:
+					YeetRecoveringStateUpdate();
 					break;
 			}
 		}
@@ -236,7 +239,8 @@ namespace Aberration.Assets.Scripts
 			if (HasFinishedYeeting())
 			{
 				StopRagdollVelocity();
-				SetRecovering();
+				AlignPositionToRagdoll();
+				SetYeetRecovering();
 			}
 		}
 
@@ -262,12 +266,31 @@ namespace Aberration.Assets.Scripts
 			}
 		}
 
-		private void RecoveringStateUpdate()
+		private void YeetRecoveringStateUpdate()
 		{
 			if (Time.time > recoverEndTime)
 			{
 				SetIdleState();
 			}
+		}
+
+		/// <summary>
+		/// Based on https://www.youtube.com/watch?v=B_NnQQKiw6I&ab_channel=KetraGames
+		/// </summary>
+		private void AlignPositionToRagdoll()
+		{
+			Vector3 originalRagdollPosition = mainRagdollElement.transform.position;
+
+			// Move main Transform to Ragdoll
+			mainTransform.position = originalRagdollPosition;
+
+			if (Physics.Raycast(mainTransform.position, Vector3.down, out RaycastHit hit))
+			{
+				mainTransform.position = new Vector3(originalRagdollPosition.x, hit.point.y, originalRagdollPosition.z);
+			}
+
+			// Need to reset the Ragdoll position since the parent has moved
+			mainRagdollElement.transform.position = originalRagdollPosition;
 		}
 		#endregion
 	}

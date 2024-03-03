@@ -14,9 +14,6 @@ namespace Aberration
 		private int unitMask;
 
 		[SerializeField]
-		private int bodyPartMask;
-
-		[SerializeField]
 		private int groundMask;
 
 		[SerializeField]
@@ -35,12 +32,14 @@ namespace Aberration
 		private float yeetRise = 3f;
 
 		private List<Collider> selectedObjects;
-		private List<Collider> selectedBodyParts;
 
 		private Vector3 selectStartLocation;
 		private Vector3 selectRay;
 
 		private Vector3 dragStartLocation;
+
+		private Vector3 yeetForce;
+
 
 		private const float SingleTargetSelectionRange = 0.1f;
 		private const float SingleTargetSelectionRangeSq = SingleTargetSelectionRange * SingleTargetSelectionRange;
@@ -107,13 +106,6 @@ namespace Aberration
 			{					
 				selectedObjects.SafeClear();
 				ListUtils.SafeAdd(ref selectedObjects, unitHit.collider);
-
-				// Check for a body part selection
-				if (Physics.Raycast(cameraLocation, selectRay, out RaycastHit bodyHit, maxRayDistance, ~(1 >> bodyPartMask)))
-				{
-					selectedBodyParts.SafeClear();
-					ListUtils.SafeAdd(ref selectedBodyParts, bodyHit.collider);
-				}
 			}
 			else
 			{
@@ -140,21 +132,21 @@ namespace Aberration
 
 		private void TryYeeting(Vector3 diff)
 		{
-			if (selectedBodyParts != null)
+			if (selectedObjects != null)
 			{
 				diff.y = 0;
 				float yeetXZMagnitude = diff.magnitude;
 				float yeetUpwards = yeetRise * yeetXZMagnitude;
 				diff.y = yeetUpwards;
 
-				Vector3 force = diff * yeetForceMultiplier;
+				yeetForce = diff * yeetForceMultiplier;
 
 				foreach (Collider collider in selectedObjects)
 				{
 					Unit unit = collider.GetComponent<Unit>();
 					if (unit != null)
 					{
-						unit.Yeet(force, selectedBodyParts);
+						unit.Yeet(yeetForce);
 					}
 				}
 			}
@@ -174,6 +166,9 @@ namespace Aberration
 			Vector3 ray = Vector3.Normalize(selectRay);
 			ray *= maxRayDistance;
 			Gizmos.DrawLine(cameraPos, cameraPos + ray);
+
+			Gizmos.color = Color.cyan;
+			Gizmos.DrawLine(dragStartLocation, dragStartLocation + yeetForce);
 		}
 	}
 }

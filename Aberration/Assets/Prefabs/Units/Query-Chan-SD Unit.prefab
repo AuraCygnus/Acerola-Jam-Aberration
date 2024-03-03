@@ -963,8 +963,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ff237c816fb6e040a311c9e2251ee39, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mainTransform: {fileID: 6656592639711571903}
   selectionCollider: {fileID: 6348528057973837179}
+  navAgent: {fileID: 5469554371788707562}
+  animationController: {fileID: 4016217523359509955}
+  stillYeetingMinVelocity: 0.5
+--- !u!114 &4016217523359509955
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1925212891629493390}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58d5643116e635744a74f9d3ffe8574e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mainTransform: {fileID: 6656592639711571903}
+  animator: {fileID: 8389526241269329780}
   ragdollElements:
   - transform: {fileID: 4480115075606635403}
     collider: {fileID: 476843118000007203}
@@ -1031,23 +1047,10 @@ MonoBehaviour:
     collider: {fileID: 476843118000007203}
     rigidBody: {fileID: 4745527012594145985}
     joint: {fileID: 0}
-  navAgent: {fileID: 5469554371788707562}
-  animationController: {fileID: 4016217523359509955}
-  stillYeetingMinVelocity: 0.5
-  recoverTimeSecs: 3
---- !u!114 &4016217523359509955
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1925212891629493390}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 58d5643116e635744a74f9d3ffe8574e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  animator: {fileID: 8389526241269329780}
+  recoverAnimClipName: 0060_Pose_Recover
+  timeToResetBones: 2
+  recoverAnimStateName: 0060_Pose_Recover
+  recoverTimeSecs: 2
   emoControl: {fileID: 9204036602602544531}
 --- !u!195 &5469554371788707562
 NavMeshAgent:

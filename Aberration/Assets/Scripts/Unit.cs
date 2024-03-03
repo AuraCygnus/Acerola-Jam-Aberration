@@ -1,22 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
 namespace Aberration.Assets.Scripts
 {
-	/// <summary>
-	/// Elements for a Ragdoll part.
-	/// </summary>
-	[Serializable]
-	public struct RagdollElement
-	{
-		public Transform transform;
-		public Collider collider;
-		public Rigidbody rigidBody;
-		public CharacterJoint joint;
-	}
-
 	/// <summary>
 	/// Selection of states a Unit can be in.
 	/// </summary>
@@ -26,22 +13,14 @@ namespace Aberration.Assets.Scripts
 		Moving,
 		Yeeted,
 		YeetRecovering,
+		ResettingBones,
 		Fighting
 	}
 
 	public class Unit : MonoBehaviour
 	{
 		[SerializeField]
-		private Transform mainTransform;
-
-		[SerializeField]
 		private Collider selectionCollider;
-
-		[SerializeField]
-		private RagdollElement[] ragdollElements;
-
-		[SerializeField]
-		private RagdollElement mainRagdollElement;
 
 		[SerializeField]
 		private NavMeshAgent navAgent;
@@ -54,9 +33,6 @@ namespace Aberration.Assets.Scripts
 		/// </summary>
 		[SerializeField]
 		private float stillYeetingMinVelocity = 0.5f;
-
-		[SerializeField]
-		private float recoverTimeSecs = 3f;
 
 		/// <summary>
 		/// Id of team the unit belongs to.
@@ -72,8 +48,6 @@ namespace Aberration.Assets.Scripts
 		/// Current Unit state.
 		/// </summary>
 		private UnitState state;
-
-		private float recoverEndTime;
 
 		public void Setup(byte teamId)
 		{
@@ -102,67 +76,22 @@ namespace Aberration.Assets.Scripts
 			}
 		}
 
-		public void Yeet(Vector3 force, List<Collider> selectedBodyParts)
+		public void Yeet(Vector3 force)
 		{
 			SetYeeted();
 
-			if (selectedBodyParts != null)
-			{
-				bool hasYeetedCollider = false;
-				foreach (var collider in selectedBodyParts)
-				{
-					if (IsOwnCollider(collider))
-					{
-						if (collider.attachedRigidbody != null)
-						{
-							collider.attachedRigidbody.AddForce(force);
-							hasYeetedCollider = true;
-						}
-					}
-				}
-
-				if (!hasYeetedCollider)
-				{
-					// Fall back to yeeting from the main part
-					mainRagdollElement.rigidBody.AddForce(force);
-				}
-			}
+			// Fall back to yeeting from the main part
+			animationController.AddForceToMain(force);
 		}
 
 		private bool IsOwnCollider(Collider collider)
 		{
-			foreach (RagdollElement element in ragdollElements)
-			{
-				if (element.collider == collider)
-					return true;
-			}
-
-			return false;
+			return animationController.IsOwnCollider(collider);
 		}
 
 		public bool IsOwner(byte teamId)
 		{
 			return this.teamId == teamId;
-		}
-
-		private void SetRagdollEnabled(bool isEnabled)
-		{
-			foreach (RagdollElement element in ragdollElements)
-			{
-				// Enable/Disable collider
-				element.collider.enabled = isEnabled;
-
-				// Enable/Disable Rigid Body
-				element.rigidBody.detectCollisions = isEnabled;
-				element.rigidBody.useGravity = isEnabled;
-
-				// Join is optional as not every part of the ragdoll has one
-				if (element.joint != null)
-				{
-					// Enable/Disable Character Joint
-					element.joint.enableCollision = isEnabled;
-				}
-			}
 		}
 
 		#region Set States
@@ -178,22 +107,26 @@ namespace Aberration.Assets.Scripts
 			animationController.SetYeeted();
 			navAgent.isStopped = true;
 			selectionCollider.enabled = false;
-			SetRagdollEnabled(true);
+			animationController.SetRagdollEnabled(true);
 			state = UnitState.Yeeted;
+		}
+
+		private void SetResettingBones()
+		{
+			animationController.SetResettingBones();
+			state = UnitState.ResettingBones;
 		}
 
 		private void SetYeetRecovering()
 		{
-			selectionCollider.enabled = true;
-			SetRagdollEnabled(false);
+			animationController.SetRagdollEnabled(false);
 			animationController.SetRecovering();
 			state = UnitState.YeetRecovering;
-
-			recoverEndTime = Time.time + recoverTimeSecs;
 		}
 
 		private void SetIdleState()
 		{
+			selectionCollider.enabled = true;
 			animationController.SetIdle();
 			state = UnitState.Idle;
 		}
@@ -210,6 +143,10 @@ namespace Aberration.Assets.Scripts
 
 				case UnitState.Yeeted:
 					YeetedStateUpdate();
+					break;
+
+				case UnitState.ResettingBones:
+					ResettingBonesUpdate();
 					break;
 
 				case UnitState.YeetRecovering:
@@ -238,59 +175,35 @@ namespace Aberration.Assets.Scripts
 			// Check for most movement stopped
 			if (HasFinishedYeeting())
 			{
-				StopRagdollVelocity();
-				AlignPositionToRagdoll();
-				SetYeetRecovering();
+				animationController.StopRagdollVelocity();
+				animationController.AlignRotationToRagdoll();
+				animationController.AlignPositionToRagdoll();
+				animationController.PopulateRagdollTransforms();
+				SetResettingBones();
 			}
 		}
 
 		private bool HasFinishedYeeting()
 		{
-			foreach (RagdollElement element in ragdollElements)
-			{
-				float speed = element.rigidBody.velocity.magnitude;
-				if (speed > stillYeetingMinVelocity)
-				{
-					return false;
-				}
-			}
-
-			return true;
+			return animationController.IsRagdollMoving(stillYeetingMinVelocity);
 		}
 
-		private void StopRagdollVelocity()
+		private void ResettingBonesUpdate()
 		{
-			foreach (RagdollElement element in ragdollElements)
+			animationController.UpdateResettingBones();
+
+			if (Time.time > animationController.StateEndTime)
 			{
-				element.rigidBody.velocity = Vector3.zero;
+				SetYeetRecovering();
 			}
 		}
 
 		private void YeetRecoveringStateUpdate()
 		{
-			if (Time.time > recoverEndTime)
+			if (Time.time > animationController.StateEndTime)
 			{
 				SetIdleState();
 			}
-		}
-
-		/// <summary>
-		/// Based on https://www.youtube.com/watch?v=B_NnQQKiw6I&ab_channel=KetraGames
-		/// </summary>
-		private void AlignPositionToRagdoll()
-		{
-			Vector3 originalRagdollPosition = mainRagdollElement.transform.position;
-
-			// Move main Transform to Ragdoll
-			mainTransform.position = originalRagdollPosition;
-
-			if (Physics.Raycast(mainTransform.position, Vector3.down, out RaycastHit hit))
-			{
-				mainTransform.position = new Vector3(originalRagdollPosition.x, hit.point.y, originalRagdollPosition.z);
-			}
-
-			// Need to reset the Ragdoll position since the parent has moved
-			mainRagdollElement.transform.position = originalRagdollPosition;
 		}
 		#endregion
 	}

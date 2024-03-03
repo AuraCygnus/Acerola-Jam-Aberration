@@ -42,6 +42,7 @@ public class QuerySDMecanimController : MonoBehaviour
 		NORMAL_POSE_SIT = 57,
 		NORMAL_POSE_LAYDOWN = 58,
 		NORMAL_POSE_ROMANCE = 59,
+		NORMAL_POSE_RECOVER = 60,
 
 		// Black Motion
 		BLACK_FIGHTING = 105,

@@ -175,9 +175,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   selectionCamera: {fileID: 1247057843853528240}
   unitMask: 6
-  bodyPartMask: 7
   groundMask: 8
   maxRayDistance: 1000
   yeetForceMultiplier: 4
-  mouseYeetTriggerRange: 800
-  yeetRise: 1.25
+  mouseYeetTriggerRange: 700
+  yeetRise: 1.2

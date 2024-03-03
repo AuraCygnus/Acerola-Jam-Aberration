@@ -23,14 +23,49 @@ namespace Aberration.Assets.Scripts
 		{
 			// Disable animator to let ragdoll take over
 			animator.enabled = false;
-			// Set the facial expression though
+			// Set the facial expression
+			emoControl.ChangeEmotion(QuerySDEmotionalController.QueryChanSDEmotionalType.NORMAL_SAD);
+		}
+
+		public override void SetResettingBones()
+		{
+			// Set the facial expression
 			emoControl.ChangeEmotion(QuerySDEmotionalController.QueryChanSDEmotionalType.NORMAL_GURUGURU);
+
+			stateEndTime = Time.time + timeToResetBones;
+		}
+
+		public override void UpdateResettingBones()
+		{
+			float elapsedTime = timeToResetBones - (stateEndTime - Time.time);
+			float fullTime = Mathf.Max(timeToResetBones, 0.001f);
+			float elapsedPercentage = Mathf.Clamp01(elapsedTime / fullTime);
+
+			// Don't interpolate if 1 or more, creates NaN errors
+			if (elapsedPercentage < 1f)
+			{
+				for (int i = 0; i < ragdollElements.Length; i++)
+				{
+					ragdollElements[i].transform.localPosition = Vector3.Lerp(ragdollBoneTransforms[i].position, recoverBoneTransforms[i].position, elapsedPercentage);
+					ragdollElements[i].transform.localRotation = Quaternion.Lerp(ragdollBoneTransforms[i].rotation, recoverBoneTransforms[i].rotation, elapsedPercentage);
+				}
+			}
+			else
+			{
+				for (int i = 0; i < ragdollElements.Length; i++)
+				{
+					ragdollElements[i].transform.localPosition = recoverBoneTransforms[i].position;
+					ragdollElements[i].transform.localRotation = recoverBoneTransforms[i].rotation;
+				}
+			}
 		}
 
 		public override void SetRecovering()
 		{
 			animator.enabled = true;
-			QuerySDMecanimController.ChangeAnimation(QuerySDMecanimController.QueryChanSDAnimationType.NORMAL_POSE_SIT, animator, emoControl);
+			animator.Play(recoverAnimStateName);
+
+			stateEndTime = Time.time + recoverTimeSecs;
 		}
 	}
 }

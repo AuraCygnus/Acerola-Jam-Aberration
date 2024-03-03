@@ -135,6 +135,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Query-Chan-SD Unit
       objectReference: {fileID: 0}
+    - target: {fileID: 4016217523359509955, guid: 7d497ba7c3d89b34896f07c2eb8bb099, type: 3}
+      propertyPath: recoverAnimClipName
+      value: 0057_Pose_Sit
+      objectReference: {fileID: 0}
     - target: {fileID: 6656592639711571903, guid: 7d497ba7c3d89b34896f07c2eb8bb099, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.19610405

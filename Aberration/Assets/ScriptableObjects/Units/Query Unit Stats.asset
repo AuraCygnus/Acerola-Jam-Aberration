@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d79e697b403a6a844988d4497caef4b1, type: 3}
+  m_Name: Query Unit Stats
+  m_EditorClassIdentifier: 
+  moveSpeed: 1
+  turnSpeed: 120
+  acceleration: 4
+  radius: 4
+  stillYeetingMinVelocity: 0.5
+  recoverAnimClipName: 0060_Pose_Recover
+  timeToResetBones: 1.5
+  recoverAnimStateName: 0060_Pose_Recover
+  recoverTimeSecs: 1

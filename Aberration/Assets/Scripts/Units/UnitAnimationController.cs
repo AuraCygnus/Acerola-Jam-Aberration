@@ -39,16 +39,7 @@ namespace Aberration.Assets.Scripts
 		protected RagdollElement mainRagdollElement;
 
 		[SerializeField]
-		protected string recoverAnimClipName;
-
-		[SerializeField]
-		protected float timeToResetBones = 2f;
-
-		[SerializeField]
-		protected string recoverAnimStateName;
-
-		[SerializeField]
-		protected float recoverTimeSecs = 2f;
+		protected UnitData unitData;
 
 		protected BoneTransform[] recoverBoneTransforms;
 		protected BoneTransform[] ragdollBoneTransforms;
@@ -64,7 +55,7 @@ namespace Aberration.Assets.Scripts
 			recoverBoneTransforms = new BoneTransform[ragdollElements.Length];
 			ragdollBoneTransforms = new BoneTransform[ragdollElements.Length];
 
-			PopulateAnimationStartBoneTransforms(recoverAnimClipName, recoverBoneTransforms);
+			PopulateAnimationStartBoneTransforms(unitData.RecoverAnimClipName, recoverBoneTransforms);
 		}
 
 		public abstract void SetMoving();

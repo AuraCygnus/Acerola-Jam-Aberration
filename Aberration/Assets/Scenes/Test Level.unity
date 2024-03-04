@@ -601,10 +601,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Camera
       objectReference: {fileID: 0}
-    - target: {fileID: 4726854174138992204, guid: f6169d0092fe58a459ea83a473dc9ec4, type: 3}
-      propertyPath: yeetForceMultiplier
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 5817420591905093867, guid: f6169d0092fe58a459ea83a473dc9ec4, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

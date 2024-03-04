@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.AI;
 
 namespace Aberration.Assets.Scripts
@@ -20,6 +19,9 @@ namespace Aberration.Assets.Scripts
 	public class Unit : MonoBehaviour
 	{
 		[SerializeField]
+		private UnitData unitData;
+
+		[SerializeField]
 		private Collider selectionCollider;
 
 		[SerializeField]
@@ -27,12 +29,6 @@ namespace Aberration.Assets.Scripts
 
 		[SerializeField]
 		private UnitAnimationController animationController;
-
-		/// <summary>
-		/// Minimum velocity at which the Unit is still classed as yeeting
-		/// </summary>
-		[SerializeField]
-		private float stillYeetingMinVelocity = 0.5f;
 
 		/// <summary>
 		/// Id of team the unit belongs to.
@@ -48,6 +44,15 @@ namespace Aberration.Assets.Scripts
 		/// Current Unit state.
 		/// </summary>
 		private UnitState state;
+
+		protected void Awake()
+		{
+			navAgent.speed = unitData.MoveSpeed;
+			navAgent.angularSpeed = unitData.TurnSpeed;
+			navAgent.acceleration = unitData.Acceleration;
+			navAgent.radius = unitData.Radius;
+			navAgent.height = unitData.Height;
+		}
 
 		public void Setup(byte teamId)
 		{
@@ -185,7 +190,7 @@ namespace Aberration.Assets.Scripts
 
 		private bool HasFinishedYeeting()
 		{
-			return animationController.IsRagdollMoving(stillYeetingMinVelocity);
+			return animationController.IsRagdollMoving(unitData.StillYeetingMinVelocity);
 		}
 
 		private void ResettingBonesUpdate()

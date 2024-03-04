@@ -32,13 +32,13 @@ namespace Aberration.Assets.Scripts
 			// Set the facial expression
 			emoControl.ChangeEmotion(QuerySDEmotionalController.QueryChanSDEmotionalType.NORMAL_GURUGURU);
 
-			stateEndTime = Time.time + timeToResetBones;
+			stateEndTime = Time.time + unitData.TimeToResetBones;
 		}
 
 		public override void UpdateResettingBones()
 		{
-			float elapsedTime = timeToResetBones - (stateEndTime - Time.time);
-			float fullTime = Mathf.Max(timeToResetBones, 0.001f);
+			float elapsedTime = unitData.TimeToResetBones - (stateEndTime - Time.time);
+			float fullTime = Mathf.Max(unitData.TimeToResetBones, 0.001f);
 			float elapsedPercentage = Mathf.Clamp01(elapsedTime / fullTime);
 
 			// Don't interpolate if 1 or more, creates NaN errors
@@ -63,9 +63,9 @@ namespace Aberration.Assets.Scripts
 		public override void SetRecovering()
 		{
 			animator.enabled = true;
-			animator.Play(recoverAnimStateName);
+			animator.Play(unitData.RecoverAnimStateName);
 
-			stateEndTime = Time.time + recoverTimeSecs;
+			stateEndTime = Time.time + unitData.RecoverTimeSecs;
 		}
 	}
 }

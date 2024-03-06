@@ -28,6 +28,10 @@ namespace Aberration.Assets.Scripts
 		/// </summary>
 		[SerializeField]
 		protected Transform mainTransform;
+		public Transform MainTransform
+		{
+			get { return mainTransform; }
+		}
 
 		[SerializeField]
 		protected Animator animator;

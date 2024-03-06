@@ -13,6 +13,7 @@ namespace Aberration.Assets.Scripts
 		Yeeted,
 		YeetRecovering,
 		ResettingBones,
+		MovingToFight,
 		Fighting
 	}
 
@@ -31,14 +32,27 @@ namespace Aberration.Assets.Scripts
 		private UnitAnimationController animationController;
 
 		/// <summary>
-		/// Id of team the unit belongs to.
+		/// Team the unit belongs to.
 		/// </summary>
-		private byte teamId;
+		[SerializeField]
+		private Team team;
+		/// <summary>
+		/// Id of the team the unit belongs to.
+		/// </summary>
+		public byte TeamID
+		{
+			get { return team.TeamID; }
+		}
 
 		/// <summary>
 		/// Last set move location.
 		/// </summary>
 		private Vector3 moveLocation;
+
+		/// <summary>
+		/// Last set target Unit.
+		/// </summary>
+		private Unit targetUnit;
 
 		/// <summary>
 		/// Current Unit state.
@@ -54,9 +68,9 @@ namespace Aberration.Assets.Scripts
 			navAgent.height = unitData.Height;
 		}
 
-		public void Setup(byte teamId)
+		public void Setup(Team team)
 		{
-			this.teamId = teamId;
+			this.team = team;
 		}
 
 		public void SetMoveLocation(Vector3 moveLocation)
@@ -89,14 +103,29 @@ namespace Aberration.Assets.Scripts
 			animationController.AddForceToAll(force);
 		}
 
-		private bool IsOwnCollider(Collider collider)
+		public void SetTarget(Unit targetUnit)
 		{
-			return animationController.IsOwnCollider(collider);
+			this.targetUnit = targetUnit;
+
+			Vector3 diff = targetUnit.transform.position - animationController.MainTransform.position;
+			float distance = diff.magnitude;
+
+			// Target in range
+			if ((distance - unitData.Range - targetUnit.unitData.Radius) < 0f)
+			{
+				// Attack target
+				state = UnitState.Fighting;
+			}
+			else
+			{
+				// Move towards target before attacking
+				state = UnitState.MovingToFight;
+			}
 		}
 
 		public bool IsOwner(byte teamId)
 		{
-			return this.teamId == teamId;
+			return this.team.TeamID == teamId;
 		}
 
 		#region Set States

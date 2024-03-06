@@ -21,6 +21,10 @@ namespace Aberration.Assets.Scripts
 
 		[SerializeField]
 		private byte teamId;
+		public byte TeamID
+		{
+			get { return teamId; }
+		}
 
 		[SerializeField]
 		private List<Unit> units;

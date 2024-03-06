@@ -5,6 +5,13 @@ using UnityEngine;
 
 namespace Aberration
 {
+	public enum SelectionState
+	{
+		Free,
+		SelectedOwnUnit,
+		SelectedEnemyUnit
+	}
+
 	public class UnitSelectionController : MonoBehaviour
 	{
 		[SerializeField]
@@ -25,6 +32,9 @@ namespace Aberration
 		[SerializeField]
 		private float mouseYeetTriggerRange = 800f;
 
+		[SerializeField]
+		private Team ownTeam;
+
 		/// <summary>
 		/// How muhc upward force to add to yeet
 		/// </summary>
@@ -40,16 +50,38 @@ namespace Aberration
 
 		private Vector3 yeetForce;
 
+		private SelectionState state;
 
 		private const float SingleTargetSelectionRange = 0.1f;
 		private const float SingleTargetSelectionRangeSq = SingleTargetSelectionRange * SingleTargetSelectionRange;
 
 		private void Update()
 		{
+			switch (state)
+			{
+				case SelectionState.Free:
+					HandleFreeState();
+					break;
+
+				case SelectionState.SelectedOwnUnit:
+					HandleSelectedOwnUnits();
+					break;
+
+				case SelectionState.SelectedEnemyUnit:
+					HandleSelectedEnemyUnit();
+					break;
+			}
+		}
+
+		private void HandleFreeState()
+		{
+			HandleSelection();
+		}
+
+		private void HandleSelection()
+		{
 			bool leftClickDown = Input.GetMouseButtonDown(0);
 			bool leftClickUp = Input.GetMouseButtonUp(0);
-			bool rightClickDown = Input.GetMouseButtonDown(1);
-			bool rightClickUp = Input.GetMouseButtonUp(1);
 
 			if (leftClickDown)
 			{
@@ -71,6 +103,16 @@ namespace Aberration
 					// try selecting multiple objects in a box
 				}
 			}
+		}
+
+		private void HandleSelectedOwnUnits()
+		{
+			// Still need to consider selection
+			HandleSelection();
+
+			// Also need to consider Move, Attack & Yeet actions
+			bool rightClickDown = Input.GetMouseButtonDown(1);
+			bool rightClickUp = Input.GetMouseButtonUp(1);
 
 			int numSelectedObjects = selectedObjects.SafeCount();
 			if (numSelectedObjects > 0)
@@ -84,18 +126,37 @@ namespace Aberration
 				{
 					Vector3 dragEndLocation = GetMouseClickPosition();
 
-					Vector3 diff = dragEndLocation - dragStartLocation;
-					float lengthSq = Vector3.SqrMagnitude(diff);
-					if (lengthSq <= (mouseYeetTriggerRange * mouseYeetTriggerRange))
+					if (CheckForEnemyTarget(dragEndLocation, out Unit targetUnit))
 					{
-						TrySettingMoveDestination(dragEndLocation);
+						foreach (Collider collider in selectedObjects)
+						{
+							Unit unit = collider.GetComponent<Unit>();
+							if (unit != null)
+							{
+								unit.SetTarget(targetUnit);
+							}
+						}
 					}
 					else
 					{
-						TryYeeting(diff);
+						Vector3 diff = dragEndLocation - dragStartLocation;
+						float lengthSq = Vector3.SqrMagnitude(diff);
+						if (lengthSq <= (mouseYeetTriggerRange * mouseYeetTriggerRange))
+						{
+							TrySettingMoveDestination(dragEndLocation);
+						}
+						else
+						{
+							TryYeeting(diff);
+						}
 					}
 				}
 			}
+		}
+
+		private void HandleSelectedEnemyUnit()
+		{
+			HandleSelection();
 		}
 
 		private void TrySelectSingleObject(Vector3 selectLocation)
@@ -105,12 +166,47 @@ namespace Aberration
 			if (Physics.Raycast(cameraLocation, selectRay, out RaycastHit unitHit, maxRayDistance, ~(1 >> unitMask)))
 			{					
 				selectedObjects.SafeClear();
-				ListUtils.SafeAdd(ref selectedObjects, unitHit.collider);
+
+				Unit unit = unitHit.collider.GetComponent<Unit>();
+				if (unit != null)
+				{
+					if (ownTeam.TeamID == unit.TeamID)
+					{
+						state = SelectionState.SelectedOwnUnit;
+					}
+					else
+					{
+						state = SelectionState.SelectedEnemyUnit;
+					}
+
+					ListUtils.SafeAdd(ref selectedObjects, unitHit.collider);
+				}
 			}
 			else
 			{
 				selectedObjects.SafeClear();
 			}
+		}
+
+		private bool CheckForEnemyTarget(Vector3 selectLocation, out Unit unit)
+		{
+			Vector3 cameraLocation = selectionCamera.transform.position;
+			selectRay = selectLocation - cameraLocation;
+			if (Physics.Raycast(cameraLocation, selectRay, out RaycastHit unitHit, maxRayDistance, ~(1 >> unitMask)))
+			{
+				Unit targetUnit = unitHit.collider.GetComponent<Unit>();
+				if (targetUnit != null)
+				{
+					if (ownTeam.TeamID != targetUnit.TeamID)
+					{
+						unit = targetUnit;
+						return true;
+					}
+				}
+			}
+
+			unit = null;
+			return false;
 		}
 
 		private void TrySettingMoveDestination(Vector3 selectLocation)

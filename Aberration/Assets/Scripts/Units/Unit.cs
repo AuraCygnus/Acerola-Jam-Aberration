@@ -107,11 +107,8 @@ namespace Aberration.Assets.Scripts
 		{
 			this.targetUnit = targetUnit;
 
-			Vector3 diff = targetUnit.transform.position - animationController.MainTransform.position;
-			float distance = diff.magnitude;
-
 			// Target in range
-			if ((distance - unitData.Range - targetUnit.unitData.Radius) < 0f)
+			if (IsTargetInRange())
 			{
 				// Attack target
 				state = UnitState.Fighting;
@@ -121,6 +118,15 @@ namespace Aberration.Assets.Scripts
 				// Move towards target before attacking
 				state = UnitState.MovingToFight;
 			}
+		}
+
+		private bool IsTargetInRange()
+		{
+			Vector3 diff = targetUnit.transform.position - animationController.MainTransform.position;
+			float distance = diff.magnitude;
+
+			// Target in range
+			return (distance - unitData.Range - targetUnit.unitData.Radius) < 0f;
 		}
 
 		public bool IsOwner(byte teamId)
@@ -186,6 +192,14 @@ namespace Aberration.Assets.Scripts
 				case UnitState.YeetRecovering:
 					YeetRecoveringStateUpdate();
 					break;
+
+				case UnitState.MovingToFight:
+					MovingToFightUpdate();
+					break;
+
+				case UnitState.Fighting:
+					FightingUpdate();
+					break;
 			}
 		}
 
@@ -237,6 +251,35 @@ namespace Aberration.Assets.Scripts
 			if (Time.time > animationController.StateEndTime)
 			{
 				SetIdleState();
+			}
+		}
+
+		private void MovingToFightUpdate()
+		{
+			// Target in range
+			if (IsTargetInRange())
+			{
+				// Attack target
+				state = UnitState.Fighting;
+			}
+		}
+
+		private void FightingUpdate()
+		{
+			if (IsTargetInRange())
+			{
+				// Execute attack animation
+
+				// If Ranged Fire Projectile 
+
+				// At correct point in animation Damage target
+
+				// Repeat until target is defeated, unit loses or unit is issued new orders
+			}
+			else
+			{
+				// Switch back to moving to attack target
+				state = UnitState.MovingToFight;
 			}
 		}
 		#endregion

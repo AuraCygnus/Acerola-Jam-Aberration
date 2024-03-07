@@ -67,5 +67,11 @@ namespace Aberration.Assets.Scripts
 
 			stateEndTime = Time.time + unitData.RecoverTimeSecs;
 		}
+
+		public override void SetFighting()
+		{
+			if (!string.IsNullOrEmpty(unitData.CombatAnimStateName))
+				animator.Play(unitData.CombatAnimStateName);
+		}
 	}
 }

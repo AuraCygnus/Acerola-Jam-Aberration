@@ -72,6 +72,8 @@ namespace Aberration.Assets.Scripts
 
 		public abstract void SetRecovering();
 
+		public abstract void SetFighting();
+
 		public virtual void UpdateResettingBones()
 		{
 
@@ -102,6 +104,7 @@ namespace Aberration.Assets.Scripts
 			return false;
 		}
 
+		#region Ragdoll
 		public void SetRagdollEnabled(bool isEnabled)
 		{
 			foreach (RagdollElement element in ragdollElements)
@@ -213,5 +216,6 @@ namespace Aberration.Assets.Scripts
 			mainTransform.position = positionBefore;
 			mainTransform.rotation = rotationBefore;
 		}
+		#endregion
 	}
 }

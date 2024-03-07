@@ -104,5 +104,12 @@ namespace Aberration
         {
             get { return recoverTimeSecs; }
         }
+
+        [SerializeField]
+        private string combatAnimStateName;
+        public string CombatAnimStateName
+        {
+            get { return combatAnimStateName; }
+        }
     }
 }

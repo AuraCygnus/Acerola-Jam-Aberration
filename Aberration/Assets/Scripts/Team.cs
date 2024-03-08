@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Aberration.Assets.Scripts
 {
-	public enum TeamOwnerType
+	public enum TeamOwnerType : byte
 	{
 		Player,
 		AI
@@ -31,7 +31,13 @@ namespace Aberration.Assets.Scripts
 
 		public void AddUnit(Unit unit)
 		{
-			ListUtils.SafeAdd(ref units, unit);
+			if (!units.SafeContains(unit))
+				ListUtils.SafeAdd(ref units, unit);
+		}
+
+		public void RemoveUnit(Unit unit)
+		{
+			units.SafeRemove(unit);
 		}
 	}
 }

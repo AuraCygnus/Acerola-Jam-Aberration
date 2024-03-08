@@ -1588,6 +1588,7 @@ MonoBehaviour:
   selectionCollider: {fileID: 8647925814731573014}
   navAgent: {fileID: 2156192469283281700}
   animationController: {fileID: 5230815318552860494}
+  team: {fileID: 0}
 --- !u!114 &5230815318552860494
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1669,6 +1670,7 @@ MonoBehaviour:
     rigidBody: {fileID: 3395102601916357546}
     joint: {fileID: 0}
   unitData: {fileID: 11400000, guid: 097892e40f9b14d4ea3d05dd6d463824, type: 2}
+  animationHandler: {fileID: 7379074348741881411}
   emoControl: {fileID: 7565776476548293512}
 --- !u!195 &2156192469283281700
 NavMeshAgent:
@@ -1945,6 +1947,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6892492524639029435}
   - component: {fileID: 5766470790517343004}
+  - component: {fileID: 7379074348741881411}
   m_Layer: 0
   m_Name: SD_QUERY_02
   m_TagString: Untagged
@@ -1990,6 +1993,18 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &7379074348741881411
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5206025945342148251}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2cfd2b497efb5a94c836e9a348ef60a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5805280009254430712
 GameObject:
   m_ObjectHideFlags: 0

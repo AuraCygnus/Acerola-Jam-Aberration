@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Aberration.Assets.Scripts.Utils;
+using UnityEngine;
 using UnityEngine.AI;
 
 namespace Aberration.Assets.Scripts
@@ -6,7 +7,7 @@ namespace Aberration.Assets.Scripts
 	/// <summary>
 	/// Selection of states a Unit can be in.
 	/// </summary>
-	public enum UnitState
+	public enum UnitState : byte
 	{
 		Idle,
 		Moving,
@@ -14,7 +15,8 @@ namespace Aberration.Assets.Scripts
 		YeetRecovering,
 		ResettingBones,
 		MovingToFight,
-		Fighting
+		Fighting,
+		Defeated
 	}
 
 	public class Unit : MonoBehaviour
@@ -59,6 +61,8 @@ namespace Aberration.Assets.Scripts
 		/// </summary>
 		private UnitState state;
 
+		private int remainingHp;
+
 		protected void Awake()
 		{
 			navAgent.speed = unitData.MoveSpeed;
@@ -66,11 +70,25 @@ namespace Aberration.Assets.Scripts
 			navAgent.acceleration = unitData.Acceleration;
 			navAgent.radius = unitData.Radius;
 			navAgent.height = unitData.Height;
+
+			remainingHp = unitData.MaxHP;
+
+			if (team != null)
+				SetupTeam();
+
+			SetIdleState();
 		}
 
 		public void Setup(Team team)
 		{
 			this.team = team;
+
+			SetupTeam();
+		}
+
+		private void SetupTeam()
+		{
+			team.AddUnit(this);
 		}
 
 		public void SetMoveLocation(Vector3 moveLocation)
@@ -107,23 +125,45 @@ namespace Aberration.Assets.Scripts
 		{
 			this.targetUnit = targetUnit;
 
-			// Target in range
-			if (IsTargetInRange())
+			if (targetUnit != null)
 			{
-				// Attack target
-				state = UnitState.Fighting;
+				UpdateTargetting();
+			}
+		}
+
+		private void UpdateTargetting()
+		{
+			Vector3 ownPosition = animationController.MainTransform.position;
+			Vector3 targetPosition = targetUnit.transform.position;
+			Vector3 between = targetPosition - ownPosition;
+			// Target in range
+			if (IsTargetInRange(between))
+			{
+				SetFightingState();
 			}
 			else
 			{
-				// Move towards target before attacking
-				state = UnitState.MovingToFight;
+				// Normalize to get the unit length vector between
+				Vector3 directionBetween = Vector3.Normalize(between);
+				// Calculate offset to move slightly inside the range and target radius
+				Vector3 offset = directionBetween * (unitData.Range + targetUnit.unitData.Radius - 0.25f);
+				Vector3 movePosition = targetPosition - offset;
+
+				navAgent.SetDestination(movePosition);
+
+				SetMovingToFightState();
 			}
 		}
 
 		private bool IsTargetInRange()
 		{
-			Vector3 diff = targetUnit.transform.position - animationController.MainTransform.position;
-			float distance = diff.magnitude;
+			Vector3 between = targetUnit.transform.position - animationController.MainTransform.position;
+			return IsTargetInRange(between);
+		}
+
+		private bool IsTargetInRange(Vector3 between)
+		{
+			float distance = between.magnitude;
 
 			// Target in range
 			return (distance - unitData.Range - targetUnit.unitData.Radius) < 0f;
@@ -137,6 +177,9 @@ namespace Aberration.Assets.Scripts
 		#region Set States
 		private void SetMovingState()
 		{
+			if (state == UnitState.Fighting)
+				EndCombat();
+
 			navAgent.isStopped = false;
 			animationController.SetMoving();
 			state = UnitState.Moving;
@@ -144,6 +187,9 @@ namespace Aberration.Assets.Scripts
 
 		private void SetYeeted()
 		{
+			if (state == UnitState.Fighting)
+				EndCombat();
+
 			animationController.SetYeeted();
 			navAgent.isStopped = true;
 			selectionCollider.enabled = false;
@@ -166,9 +212,38 @@ namespace Aberration.Assets.Scripts
 
 		private void SetIdleState()
 		{
+			if (state == UnitState.Fighting)
+				EndCombat();
+
 			selectionCollider.enabled = true;
 			animationController.SetIdle();
 			state = UnitState.Idle;
+		}
+
+		private void SetMovingToFightState()
+		{
+			if (state == UnitState.Fighting)
+				EndCombat();
+
+			navAgent.isStopped = false;
+			animationController.SetMovingToFight();
+			state = UnitState.MovingToFight;
+		}
+
+		private void SetFightingState()
+		{
+			navAgent.isStopped = false;
+			animationController.SetFighting();
+			animationController.AnimationHandler.AttackImpact += OnAttackImpact;
+			animationController.AnimationHandler.AttackEnded += OnAttackEnded;
+			state = UnitState.Fighting;
+		}
+
+		private void SetDefeated()
+		{
+			navAgent.isStopped = true;
+			animationController.SetDefeated();
+			state = UnitState.Defeated;
 		}
 		#endregion
 
@@ -200,6 +275,10 @@ namespace Aberration.Assets.Scripts
 				case UnitState.Fighting:
 					FightingUpdate();
 					break;
+
+				case UnitState.Defeated:
+					DefeatedUpdate();
+					break;
 			}
 		}
 
@@ -221,7 +300,7 @@ namespace Aberration.Assets.Scripts
 		private void YeetedStateUpdate()
 		{
 			// Check for most movement stopped
-			if (HasFinishedYeeting())
+			if (HasFinishedRagdoll())
 			{
 				animationController.StopRagdollVelocity();
 				animationController.AlignRotationToRagdoll();
@@ -231,7 +310,7 @@ namespace Aberration.Assets.Scripts
 			}
 		}
 
-		private bool HasFinishedYeeting()
+		private bool HasFinishedRagdoll()
 		{
 			return animationController.IsRagdollMoving(unitData.StillYeetingMinVelocity);
 		}
@@ -256,12 +335,7 @@ namespace Aberration.Assets.Scripts
 
 		private void MovingToFightUpdate()
 		{
-			// Target in range
-			if (IsTargetInRange())
-			{
-				// Attack target
-				state = UnitState.Fighting;
-			}
+			UpdateTargetting();
 		}
 
 		private void FightingUpdate()
@@ -272,14 +346,49 @@ namespace Aberration.Assets.Scripts
 
 				// If Ranged Fire Projectile 
 
-				// At correct point in animation Damage target
-
-				// Repeat until target is defeated, unit loses or unit is issued new orders
+				animationController.UpdateFighting();
 			}
 			else
 			{
 				// Switch back to moving to attack target
-				state = UnitState.MovingToFight;
+				SetMovingToFightState();
+			}
+		}
+
+		private void EndCombat()
+		{
+			targetUnit = null;
+
+			animationController.AnimationHandler.AttackImpact -= OnAttackImpact;
+			animationController.AnimationHandler.AttackEnded -= OnAttackEnded;
+		}
+
+		private void OnAttackImpact()
+		{
+			// At correct point in animation Damage target
+			targetUnit.remainingHp -= CombatUtils.CalculateDamage(unitData.Attack, targetUnit.unitData.Armour);
+
+			// Repeat until target is defeated, unit loses or unit is issued new orders
+			if (targetUnit.remainingHp <= 0)
+			{
+				targetUnit.SetDefeated();
+				EndCombat();
+				SetIdleState();
+				return;
+			}
+		}
+
+		private void OnAttackEnded()
+		{
+
+		}
+
+		private void DefeatedUpdate()
+		{
+			if (HasFinishedRagdoll())
+			{
+				team.RemoveUnit(this);
+				Destroy(gameObject);
 			}
 		}
 		#endregion

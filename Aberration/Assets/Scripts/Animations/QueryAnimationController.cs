@@ -68,10 +68,47 @@ namespace Aberration.Assets.Scripts
 			stateEndTime = Time.time + unitData.RecoverTimeSecs;
 		}
 
+		public override void SetMovingToFight()
+		{
+			animator.enabled = true;
+
+			animator.SetInteger("AnimIndex", (int)QuerySDMecanimController.QueryChanSDAnimationType.NORMAL_WALK);
+			emoControl.ChangeEmotion(QuerySDEmotionalController.QueryChanSDEmotionalType.NORMAL_ANGER);
+		}
+
 		public override void SetFighting()
 		{
-			if (!string.IsNullOrEmpty(unitData.CombatAnimStateName))
-				animator.Play(unitData.CombatAnimStateName);
+			animator.SetInteger("AnimIndex", (int)QuerySDMecanimController.QueryChanSDAnimationType.BLACK_KICK);
+			emoControl.ChangeEmotion(QuerySDEmotionalController.QueryChanSDEmotionalType.NORMAL_ANGER);
+
+			// Set end time out of range
+			stateEndTime = float.MaxValue;
+		}
+
+		protected override void OnAttackEnded()
+		{
+			// Switch to combat idle
+			animator.SetInteger("AnimIndex", (int)QuerySDMecanimController.QueryChanSDAnimationType.BLACK_FIGHTING);
+
+			stateEndTime = Time.time + unitData.DelayBetweenAttacks;
+		}
+
+		public override void UpdateFighting()
+		{
+			if (Time.time > stateEndTime)
+			{
+				// Start bext attack
+				animator.SetInteger("AnimIndex", (int)QuerySDMecanimController.QueryChanSDAnimationType.BLACK_KICK);
+
+				// Set end time out of range
+				stateEndTime = float.MaxValue;
+			}
+		}
+
+		public override void SetDefeated()
+		{
+			// Disable animator to let ragdoll take over
+			animator.enabled = false;
 		}
 	}
 }

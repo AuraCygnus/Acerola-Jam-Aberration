@@ -15,9 +15,17 @@ MonoBehaviour:
   moveSpeed: 1
   turnSpeed: 120
   acceleration: 4
-  radius: 4
+  radius: 0.5
+  height: 4
+  maxHP: 10
+  attack: 2
+  armour: 1
+  range: 1
   stillYeetingMinVelocity: 0.5
   recoverAnimClipName: 0060_Pose_Recover
   timeToResetBones: 1.5
   recoverAnimStateName: 0060_Pose_Recover
   recoverTimeSecs: 1
+  combatAnimStateName: 0105_Fighting
+  attackTimeOffset: 1
+  attackTimeTotal: 2

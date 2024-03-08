@@ -45,6 +45,13 @@ namespace Aberration.Assets.Scripts
 		[SerializeField]
 		protected UnitData unitData;
 
+		[SerializeField]
+		private UnitAnimationHandler animationHandler;
+		public UnitAnimationHandler AnimationHandler
+		{
+			get { return animationHandler; }
+		}
+
 		protected BoneTransform[] recoverBoneTransforms;
 		protected BoneTransform[] ragdollBoneTransforms;
 
@@ -54,12 +61,15 @@ namespace Aberration.Assets.Scripts
 			get { return stateEndTime; }
 		}
 
-		protected void Awake()
+		protected virtual void Awake()
 		{
 			recoverBoneTransforms = new BoneTransform[ragdollElements.Length];
 			ragdollBoneTransforms = new BoneTransform[ragdollElements.Length];
 
 			PopulateAnimationStartBoneTransforms(unitData.RecoverAnimClipName, recoverBoneTransforms);
+
+			animationHandler.AttackImpact += OnAttackImpact;
+			animationHandler.AttackEnded += OnAttackEnded;
 		}
 
 		public abstract void SetMoving();
@@ -72,11 +82,22 @@ namespace Aberration.Assets.Scripts
 
 		public abstract void SetRecovering();
 
+		public abstract void SetMovingToFight();
+
 		public abstract void SetFighting();
 
-		public virtual void UpdateResettingBones()
-		{
+		public abstract void SetDefeated();
 
+		public abstract void UpdateResettingBones();
+
+		public abstract void UpdateFighting();
+
+		protected virtual void OnAttackImpact()
+		{
+		}
+
+		protected virtual void OnAttackEnded()
+		{
 		}
 
 		public void AddForceToMain(Vector3 force)

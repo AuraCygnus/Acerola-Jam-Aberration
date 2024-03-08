@@ -34,6 +34,7 @@ namespace Aberration
             get { return radius; }
         }
 
+        [SerializeField]
         private float height = 4f;
         public float Height
         {
@@ -41,24 +42,28 @@ namespace Aberration
         }
 
         [Header("Combat")]
+        [SerializeField]
         private int maxHP = 10;
         public int MaxHP
         {
             get { return maxHP; }
         }
 
+        [SerializeField]
         private int attack = 2;
         public int Attack
         {
             get { return attack; }
         }
 
+        [SerializeField]
         private int armour = 1;
         public int Armour
         {
             get { return armour; }
         }
 
+        [SerializeField]
         private int range = 3;
         public int Range
         {
@@ -110,6 +115,13 @@ namespace Aberration
         public string CombatAnimStateName
         {
             get { return combatAnimStateName; }
+        }
+
+        [SerializeField]
+        private float delayBetweenAttacks = 0.2f;
+        public float DelayBetweenAttacks
+        {
+            get { return delayBetweenAttacks; }
         }
     }
 }

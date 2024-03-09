@@ -62,6 +62,10 @@ namespace Aberration.Assets.Scripts
 		private UnitState state;
 
 		private int remainingHp;
+		public int RemainingHP
+		{
+			get { return remainingHp; }
+		}
 
 		protected void Awake()
 		{
@@ -365,16 +369,23 @@ namespace Aberration.Assets.Scripts
 
 		private void OnAttackImpact()
 		{
-			// At correct point in animation Damage target
-			targetUnit.remainingHp -= CombatUtils.CalculateDamage(unitData.Attack, targetUnit.unitData.Armour);
-
-			// Repeat until target is defeated, unit loses or unit is issued new orders
-			if (targetUnit.remainingHp <= 0)
+			if (targetUnit != null)
 			{
-				targetUnit.SetDefeated();
+				// At correct point in animation Damage target
+				targetUnit.remainingHp -= CombatUtils.CalculateDamage(unitData.Attack, targetUnit.unitData.Armour);
+
+				// Repeat until target is defeated, unit loses or unit is issued new orders
+				if (targetUnit.remainingHp <= 0)
+				{
+					targetUnit.SetDefeated();
+					EndCombat();
+					SetIdleState();
+				}
+			}
+			else
+			{
 				EndCombat();
 				SetIdleState();
-				return;
 			}
 		}
 

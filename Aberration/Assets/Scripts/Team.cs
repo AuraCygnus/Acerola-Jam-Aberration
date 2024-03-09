@@ -28,6 +28,10 @@ namespace Aberration.Assets.Scripts
 
 		[SerializeField]
 		private List<Unit> units;
+		public IEnumerable<Unit> Units
+		{
+			get { return units; }
+		}
 
 		public void AddUnit(Unit unit)
 		{

@@ -13,11 +13,14 @@ namespace Aberration
 		{
             foreach (Unit unit in team.Units)
 			{
-                Unit targetUnit = GetNearestInRangeTarget(gameState, team, unit);
-                if (targetUnit != null)
+                if (unit.State != UnitState.Fighting)
 				{
-                    unit.SetTarget(targetUnit);
-				}
+                    Unit targetUnit = GetNearestInRangeTarget(gameState, team, unit);
+                    if (targetUnit != null)
+                    {
+                        unit.SetTarget(targetUnit);
+                    }
+                }
             }
 		}
 

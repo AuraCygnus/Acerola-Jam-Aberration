@@ -33,6 +33,9 @@ namespace Aberration.Assets.Scripts
 		[SerializeField]
 		private UnitAnimationController animationController;
 
+		[SerializeField]
+		private UnitUI unitUI;
+
 		/// <summary>
 		/// Team the unit belongs to.
 		/// </summary>
@@ -60,6 +63,10 @@ namespace Aberration.Assets.Scripts
 		/// Current Unit state.
 		/// </summary>
 		private UnitState state;
+		public UnitState State
+		{
+			get { return state; }
+		}
 
 		private int remainingHp;
 		public int RemainingHP
@@ -77,6 +84,8 @@ namespace Aberration.Assets.Scripts
 
 			remainingHp = unitData.MaxHP;
 
+			unitUI.SetHp(remainingHp, unitData.MaxHP);
+
 			if (team != null)
 				SetupTeam();
 
@@ -93,6 +102,11 @@ namespace Aberration.Assets.Scripts
 		private void SetupTeam()
 		{
 			team.AddUnit(this);
+		}
+
+		public void SetSelected(bool isSelected, Team selectingTeam)
+		{
+			unitUI.SetSelected(isSelected, team == selectingTeam);
 		}
 
 		public void SetMoveLocation(Vector3 moveLocation)
@@ -236,10 +250,17 @@ namespace Aberration.Assets.Scripts
 
 		private void SetFightingState()
 		{
+			Debug.Log($"Set Fighting");
+
 			navAgent.isStopped = false;
 			animationController.SetFighting();
+
+			animationController.AnimationHandler.AttackImpact -= OnAttackImpact;
 			animationController.AnimationHandler.AttackImpact += OnAttackImpact;
+
+			animationController.AnimationHandler.AttackEnded -= OnAttackEnded;
 			animationController.AnimationHandler.AttackEnded += OnAttackEnded;
+
 			state = UnitState.Fighting;
 		}
 
@@ -372,7 +393,7 @@ namespace Aberration.Assets.Scripts
 			if (targetUnit != null)
 			{
 				// At correct point in animation Damage target
-				targetUnit.remainingHp -= CombatUtils.CalculateDamage(unitData.Attack, targetUnit.unitData.Armour);
+				targetUnit.ReduceHP(CombatUtils.CalculateDamage(unitData.Attack, targetUnit.unitData.Armour));
 
 				// Repeat until target is defeated, unit loses or unit is issued new orders
 				if (targetUnit.remainingHp <= 0)
@@ -386,6 +407,22 @@ namespace Aberration.Assets.Scripts
 			{
 				EndCombat();
 				SetIdleState();
+			}
+		}
+
+		private void ReduceHP(int reduction)
+		{
+			Debug.Log($"Reducing HP [reduction={reduction}]");
+
+			if (reduction > 0)
+			{
+				remainingHp -= reduction;
+				unitUI.SetHp(remainingHp, unitData.MaxHP);
+				unitUI.SetHpVisible(remainingHp < unitData.MaxHP);
+			}
+			else
+			{
+				Debug.LogError($"Invalid Hp Reduction [reduction={reduction}]");
 			}
 		}
 

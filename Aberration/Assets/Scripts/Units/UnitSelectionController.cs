@@ -164,8 +164,8 @@ namespace Aberration
 			Vector3 cameraLocation = selectionCamera.transform.position;
 			selectRay = selectLocation - cameraLocation;
 			if (Physics.Raycast(cameraLocation, selectRay, out RaycastHit unitHit, maxRayDistance, ~(1 >> unitMask)))
-			{					
-				selectedObjects.SafeClear();
+			{
+				ClearSelection();
 
 				Unit unit = unitHit.collider.GetComponent<Unit>();
 				if (unit != null)
@@ -179,13 +179,30 @@ namespace Aberration
 						state = SelectionState.SelectedEnemyUnit;
 					}
 
+					unit.SetSelected(true, ownTeam);
+
 					ListUtils.SafeAdd(ref selectedObjects, unitHit.collider);
 				}
 			}
 			else
 			{
-				selectedObjects.SafeClear();
+				ClearSelection();
 			}
+		}
+
+		private void ClearSelection()
+		{
+			int numSelected = selectedObjects.SafeCount();
+			for (int i = 0; i < numSelected; i++)
+			{
+				Unit unit = selectedObjects[i].GetComponent<Unit>();
+				if (unit != null)
+				{
+					unit.SetSelected(false, ownTeam);
+				}
+			}
+
+			selectedObjects.SafeClear();
 		}
 
 		private bool CheckForEnemyTarget(Vector3 selectLocation, out Unit unit)

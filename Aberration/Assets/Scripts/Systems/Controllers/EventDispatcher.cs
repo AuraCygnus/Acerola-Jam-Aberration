@@ -17,6 +17,12 @@ namespace Aberration
 
         public event Action<TeamActionState> ActionCancelled;
 
+        public event Action YeetStart;
+
+        public event Action YeetCancel;
+
+        public event Action YeetEnd;
+
         public void FireUnitSpawned(Unit unit)
 		{
             if (UnitSpawned != null)
@@ -51,6 +57,24 @@ namespace Aberration
         {
             if (ActionCancelled != null)
                 ActionCancelled(actionState);
+        }
+
+        public void FireYeetStart()
+        {
+            if (YeetStart != null)
+                YeetStart();
+        }
+
+        public void FireYeetCancel()
+        {
+            if (YeetCancel != null)
+                YeetCancel();
+        }
+
+        public void FireYeetEnd()
+        {
+            if (YeetEnd != null)
+                YeetEnd();
         }
     }
 }

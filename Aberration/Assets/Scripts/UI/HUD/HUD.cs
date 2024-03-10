@@ -11,6 +11,21 @@ namespace Aberration
         [SerializeField]
         private Team team;
 
+		[Header("UI")]
+		[SerializeField]
+		private Canvas canvas;
+		public Canvas Canvas
+		{
+			get { return canvas; }
+		}
+
+		[SerializeField]
+		private RectTransform selectionBoxTransform;
+		public RectTransform SelectionBox
+		{
+			get { return selectionBoxTransform; }
+		}
+
 		[SerializeField]
 		private ActionsPanel actionsPanel;
 

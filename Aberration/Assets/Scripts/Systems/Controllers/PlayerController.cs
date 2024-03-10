@@ -3,6 +3,7 @@ using Aberration.Assets.Scripts.Utils;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace Aberration
 {
@@ -55,7 +56,10 @@ namespace Aberration
 
 		private List<Unit> selectedObjects;
 
+		private Vector2 startPos;
 		private Vector3 selectStartLocation;
+
+
 		private Vector3 selectRay;
 
 		private Vector3 dragStartLocation;
@@ -128,7 +132,13 @@ namespace Aberration
 
 			if (leftClickDown)
 			{
+				startPos = Input.mousePosition;
 				selectStartLocation = GetMouseClickPosition();
+			}
+
+			if (Input.GetMouseButton(0))
+			{
+				UpdateSelectionBox(Input.mousePosition);
 			}
 
 			if (leftClickUp)
@@ -144,6 +154,57 @@ namespace Aberration
 				else
 				{
 					// try selecting multiple objects in a box
+					ReleaseSelectionBox();
+				}
+			}
+		}
+
+		/// <summary>
+		/// Based on: https://gamedevacademy.org/rts-unity-tutorial/
+		/// </summary>
+		/// <param name="curMousePos"></param>
+		private void UpdateSelectionBox(Vector2 curMousePos)
+		{
+			if (!hud.SelectionBox.gameObject.activeInHierarchy)
+				hud.SelectionBox.gameObject.SetActive(true);
+
+			CanvasScaler scaler = hud.Canvas.GetComponent<CanvasScaler>();
+			if (scaler.uiScaleMode == CanvasScaler.ScaleMode.ScaleWithScreenSize)
+			{
+				// Have to divide by Canvas scaleFactor
+				float scaleFactor = hud.Canvas.scaleFactor;
+				float width = (curMousePos.x - startPos.x) / scaleFactor;
+				float height = (curMousePos.y - startPos.y) / scaleFactor;
+				hud.SelectionBox.sizeDelta = new Vector2(Mathf.Abs(width), Mathf.Abs(height));
+				hud.SelectionBox.anchoredPosition = (startPos / scaleFactor) + new Vector2(width / 2, height / 2);
+			}
+			else
+			{
+				float width = (curMousePos.x - startPos.x);
+				float height = (curMousePos.y - startPos.y);
+				hud.SelectionBox.sizeDelta = new Vector2(Mathf.Abs(width), Mathf.Abs(height));
+				hud.SelectionBox.anchoredPosition = startPos + new Vector2(width / 2, height / 2);
+			}
+		}
+
+		/// <summary>
+		/// Based on https://gamedevacademy.org/rts-unity-tutorial/
+		/// </summary>
+		private void ReleaseSelectionBox()
+		{
+			hud.SelectionBox.gameObject.SetActive(false);
+			Vector2 min = hud.SelectionBox.anchoredPosition - (hud.SelectionBox.sizeDelta / 2);
+			Vector2 max = hud.SelectionBox.anchoredPosition + (hud.SelectionBox.sizeDelta / 2);
+			foreach (Unit unit in ownTeam.Units)
+			{
+				Vector3 screenPos = selectionCamera.WorldToScreenPoint(unit.transform.position);
+
+				if (screenPos.x > min.x && screenPos.x < max.x && screenPos.y > min.y && screenPos.y < max.y)
+				{
+					ListUtils.SafeAdd(ref selectedObjects, unit);
+
+					SetOwnUnitSelectedState();
+					SetUnitSelected(unit);
 				}
 			}
 		}
@@ -163,6 +224,7 @@ namespace Aberration
 				if (rightClickDown)
 				{
 					dragStartLocation = GetMouseClickPosition();
+					ownTeam.Controller.EventDispatcher.FireYeetStart();
 				}
 
 				if (rightClickUp)
@@ -183,10 +245,12 @@ namespace Aberration
 						if (lengthSq <= (mouseYeetTriggerRange * mouseYeetTriggerRange))
 						{
 							TrySettingMoveDestination(dragEndLocation);
+							ownTeam.Controller.EventDispatcher.FireYeetCancel();
 						}
 						else
 						{
 							TryYeeting(diff);
+							ownTeam.Controller.EventDispatcher.FireYeetEnd();
 						}
 					}
 				}
@@ -235,6 +299,7 @@ namespace Aberration
 
 			if (leftClickDown && !IsPointerOverUIElement())
 			{
+				startPos = Input.mousePosition;
 				selectStartLocation = GetMouseClickPosition();
 			}
 
@@ -312,16 +377,21 @@ namespace Aberration
 						SetEnemyUnitSelectedState();
 					}
 
-					unit.SetSelected(true, ownTeam);
-					ownTeam.Controller.EventDispatcher.FireUnitSelected(unit);
-
-					ListUtils.SafeAdd(ref selectedObjects, unit);
+					SetUnitSelected(unit);
 				}
 			}
 			else
 			{
 				ClearSelection();
 			}
+		}
+
+		private void SetUnitSelected(Unit unit)
+		{
+			unit.SetSelected(true, ownTeam);
+			ownTeam.Controller.EventDispatcher.FireUnitSelected(unit);
+
+			ListUtils.SafeAdd(ref selectedObjects, unit);
 		}
 
 		private bool TrySelect(Vector3 selectLocation, out RaycastHit unitHit, int layerMask)

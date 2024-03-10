@@ -43,5 +43,10 @@ namespace Aberration.Assets.Scripts
 		{
 			units.SafeRemove(unit);
 		}
+
+		public bool HasUnits()
+		{
+			return units.SafeCount() > 0;
+		}
 	}
 }

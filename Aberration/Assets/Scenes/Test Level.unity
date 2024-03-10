@@ -147,6 +147,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Query-Chan-SD Unit
       objectReference: {fileID: 0}
+    - target: {fileID: 4323341510694497113, guid: 7d497ba7c3d89b34896f07c2eb8bb099, type: 3}
+      propertyPath: m_Type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4323341510694497113, guid: 7d497ba7c3d89b34896f07c2eb8bb099, type: 3}
+      propertyPath: m_FillCenter
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4404388728251547544, guid: 7d497ba7c3d89b34896f07c2eb8bb099, type: 3}
       propertyPath: m_Camera
       value: 

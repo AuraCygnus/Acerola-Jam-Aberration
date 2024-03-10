@@ -23,6 +23,10 @@ namespace Aberration.Assets.Scripts
 	{
 		[SerializeField]
 		private UnitData unitData;
+		public UnitData UnitData
+		{
+			get { return unitData; }
+		}
 
 		[SerializeField]
 		private Collider selectionCollider;
@@ -35,6 +39,27 @@ namespace Aberration.Assets.Scripts
 
 		[SerializeField]
 		private UnitUI unitUI;
+
+		/// <summary>
+		/// Transform to use for targetting the Unit (Generally the root of the ragdoll)
+		/// </summary>
+		[SerializeField]
+		private Transform ragdollTargetTransform;
+		public Transform TargetTransform
+		{
+			get
+			{
+				// In these states should target the ragdoll instead of the main part
+				if (state == UnitState.Yeeted || state == UnitState.YeetRecovering || state == UnitState.Defeated)
+				{
+					return ragdollTargetTransform;
+				}
+				else
+				{
+					return animationController.MainTransform;
+				}
+			}
+		}
 
 		/// <summary>
 		/// Team the unit belongs to.
@@ -151,11 +176,11 @@ namespace Aberration.Assets.Scripts
 
 		private void UpdateTargetting()
 		{
-			Vector3 ownPosition = animationController.MainTransform.position;
-			Vector3 targetPosition = targetUnit.transform.position;
+			Vector3 ownPosition = TargetTransform.position;
+			Vector3 targetPosition = targetUnit.TargetTransform.position;
 			Vector3 between = targetPosition - ownPosition;
 			// Target in range
-			if (IsTargetInRange(between))
+			if (CombatUtils.IsUnitInAttackRange(between, this, targetUnit))
 			{
 				SetFightingState();
 			}
@@ -175,16 +200,8 @@ namespace Aberration.Assets.Scripts
 
 		private bool IsTargetInRange()
 		{
-			Vector3 between = targetUnit.transform.position - animationController.MainTransform.position;
-			return IsTargetInRange(between);
-		}
-
-		private bool IsTargetInRange(Vector3 between)
-		{
-			float distance = between.magnitude;
-
-			// Target in range
-			return (distance - unitData.Range - targetUnit.unitData.Radius) < 0f;
+			Vector3 between = targetUnit.TargetTransform.position - TargetTransform.position;
+			return CombatUtils.IsUnitInAttackRange(between, this, targetUnit);
 		}
 
 		public bool IsOwner(byte teamId)
@@ -195,6 +212,9 @@ namespace Aberration.Assets.Scripts
 		#region Set States
 		private void SetMovingState()
 		{
+			if (!CanChangeState())
+				return;
+
 			if (state == UnitState.Fighting)
 				EndCombat();
 
@@ -205,6 +225,9 @@ namespace Aberration.Assets.Scripts
 
 		private void SetYeeted()
 		{
+			if (!CanChangeState())
+				return;
+
 			if (state == UnitState.Fighting)
 				EndCombat();
 
@@ -217,12 +240,18 @@ namespace Aberration.Assets.Scripts
 
 		private void SetResettingBones()
 		{
+			if (!CanChangeState())
+				return;
+
 			animationController.SetResettingBones();
 			state = UnitState.ResettingBones;
 		}
 
 		private void SetYeetRecovering()
 		{
+			if (!CanChangeState())
+				return;
+
 			animationController.SetRagdollEnabled(false);
 			animationController.SetRecovering();
 			state = UnitState.YeetRecovering;
@@ -230,6 +259,9 @@ namespace Aberration.Assets.Scripts
 
 		private void SetIdleState()
 		{
+			if (!CanChangeState())
+				return;
+
 			if (state == UnitState.Fighting)
 				EndCombat();
 
@@ -240,6 +272,9 @@ namespace Aberration.Assets.Scripts
 
 		private void SetMovingToFightState()
 		{
+			if (!CanChangeState())
+				return;
+
 			if (state == UnitState.Fighting)
 				EndCombat();
 
@@ -250,6 +285,9 @@ namespace Aberration.Assets.Scripts
 
 		private void SetFightingState()
 		{
+			if (!CanChangeState())
+				return;
+
 			Debug.Log($"Set Fighting");
 
 			navAgent.isStopped = false;
@@ -266,9 +304,23 @@ namespace Aberration.Assets.Scripts
 
 		private void SetDefeated()
 		{
+			if (!CanChangeState())
+				return;
+
 			navAgent.isStopped = true;
 			animationController.SetDefeated();
 			state = UnitState.Defeated;
+		}
+
+		private bool CanChangeState()
+		{
+			if (this == null)
+				return false;
+
+			if (state == UnitState.Defeated)
+				return false;
+
+			return true;
 		}
 		#endregion
 
@@ -382,8 +434,6 @@ namespace Aberration.Assets.Scripts
 
 		private void EndCombat()
 		{
-			targetUnit = null;
-
 			animationController.AnimationHandler.AttackImpact -= OnAttackImpact;
 			animationController.AnimationHandler.AttackEnded -= OnAttackEnded;
 		}
@@ -400,6 +450,7 @@ namespace Aberration.Assets.Scripts
 				{
 					targetUnit.SetDefeated();
 					EndCombat();
+					targetUnit = null;
 					SetIdleState();
 				}
 			}
@@ -440,5 +491,10 @@ namespace Aberration.Assets.Scripts
 			}
 		}
 		#endregion
+
+		public void ResetToSafePosition()
+		{
+
+		}
 	}
 }

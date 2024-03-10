@@ -1590,6 +1590,7 @@ MonoBehaviour:
   navAgent: {fileID: 2156192469283281700}
   animationController: {fileID: 5230815318552860494}
   unitUI: {fileID: 4504764727573012120}
+  ragdollTargetTransform: {fileID: 8644832757233779723}
   team: {fileID: 0}
 --- !u!114 &5230815318552860494
 MonoBehaviour:
@@ -3172,9 +3173,13 @@ PrefabInstance:
       value: Unit UI
       objectReference: {fileID: 0}
     - target: {fileID: 8605343475274293610, guid: 7aa301e0f295b7344861cfa6d659233e, type: 3}
+      propertyPath: followUnit
+      value: 
+      objectReference: {fileID: 6009734602435586866}
+    - target: {fileID: 8605343475274293610, guid: 7aa301e0f295b7344861cfa6d659233e, type: 3}
       propertyPath: followTransform
       value: 
-      objectReference: {fileID: 891237723866340687}
+      objectReference: {fileID: 8644832757233779723}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

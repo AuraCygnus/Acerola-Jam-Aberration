@@ -1,3 +1,4 @@
+using Aberration.Assets.Scripts;
 using UnityEngine;
 
 namespace Aberration
@@ -8,7 +9,7 @@ namespace Aberration
 	public class FollowWorld : MonoBehaviour
     {
         [SerializeField]
-        private Transform followTransform;
+        private Unit followUnit;
 
         [SerializeField]
         private Vector3 offset;
@@ -19,7 +20,7 @@ namespace Aberration
         // Update is called once per frame
         void Update()
         {
-            Vector3 position = mainCamera.WorldToScreenPoint(followTransform.position + offset);
+            Vector3 position = mainCamera.WorldToScreenPoint(followUnit.TargetTransform.position + offset);
 
             if (transform.position != position)
                 transform.position = position;

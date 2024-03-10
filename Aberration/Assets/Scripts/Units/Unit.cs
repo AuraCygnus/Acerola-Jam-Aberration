@@ -50,7 +50,7 @@ namespace Aberration.Assets.Scripts
 			get
 			{
 				// In these states should target the ragdoll instead of the main part
-				if (state == UnitState.Yeeted || state == UnitState.YeetRecovering || state == UnitState.Defeated)
+				if (state == UnitState.Yeeted || state == UnitState.ResettingBones || state == UnitState.YeetRecovering || state == UnitState.Defeated)
 				{
 					return ragdollTargetTransform;
 				}
@@ -136,7 +136,7 @@ namespace Aberration.Assets.Scripts
 
 		public void SetMoveLocation(Vector3 moveLocation)
 		{
-			if (state == UnitState.Yeeted || state == UnitState.YeetRecovering)
+			if (state == UnitState.Yeeted || state == UnitState.ResettingBones || state == UnitState.YeetRecovering)
 			{
 				Debug.Log("Unable to move at current");
 				return;
@@ -307,7 +307,9 @@ namespace Aberration.Assets.Scripts
 			if (!CanChangeState())
 				return;
 
+
 			navAgent.isStopped = true;
+			animationController.StopRagdollVelocity();
 			animationController.SetDefeated();
 			state = UnitState.Defeated;
 		}

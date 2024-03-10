@@ -45,9 +45,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1ed19ec4ca7ede43a305ba8154a1b3b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gameState: {fileID: 0}
   ownerType: 1
+  controller: {fileID: 5602048680737305350}
   teamId: 1
   units: []
+  actions: []
 --- !u!114 &5602048680737305350
 MonoBehaviour:
   m_ObjectHideFlags: 0

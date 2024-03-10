@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Aberration
 {
-	public class AIController : MonoBehaviour
+	public class AIController : Controller
     {
         [SerializeField]
         private GameState gameState;
@@ -20,7 +20,12 @@ namespace Aberration
 
         private bool updating;
 
-        protected void OnEnable()
+		public override TeamOwnerType OwnerType
+		{
+			get { return team.OwnerType;  }
+		}
+
+		protected void OnEnable()
 		{
             updating = true;
             StartCoroutine(OnUpdateTick());

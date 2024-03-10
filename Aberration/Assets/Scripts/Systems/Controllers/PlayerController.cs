@@ -2,6 +2,7 @@ using Aberration.Assets.Scripts;
 using Aberration.Assets.Scripts.Utils;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace Aberration
 {
@@ -13,16 +14,23 @@ namespace Aberration
 		ActionTargetSelection
 	}
 
-	public class PlayerController : MonoBehaviour
+	public class PlayerController : Controller
 	{
 		[SerializeField]
 		private Camera selectionCamera;
+		public Camera SelectionCamera
+		{
+			get { return selectionCamera; }
+		}
 
 		[SerializeField]
 		private int unitMask;
 
 		[SerializeField]
 		private int groundMask;
+
+		[SerializeField]
+		private int uiLayer;
 
 		[SerializeField]
 		private float maxRayDistance = 1000;
@@ -36,13 +44,16 @@ namespace Aberration
 		[SerializeField]
 		private Team ownTeam;
 
+		[SerializeField]
+		private HUD hud;
+
 		/// <summary>
 		/// How muhc upward force to add to yeet
 		/// </summary>
 		[SerializeField]
 		private float yeetRise = 3f;
 
-		private List<Collider> selectedObjects;
+		private List<Unit> selectedObjects;
 
 		private Vector3 selectStartLocation;
 		private Vector3 selectRay;
@@ -53,8 +64,35 @@ namespace Aberration
 
 		private SelectionState state;
 
+		private TeamActionState currentAction;
+
 		private const float SingleTargetSelectionRange = 0.1f;
 		private const float SingleTargetSelectionRangeSq = SingleTargetSelectionRange * SingleTargetSelectionRange;
+
+		public override TeamOwnerType OwnerType
+		{
+			get { return ownTeam.OwnerType; }
+		}
+
+		protected override void Awake()
+		{
+			base.Awake();
+
+			EventDispatcher.UnitDefeated += OnUnitDefeated;
+		}
+
+		private void OnUnitDefeated(Unit unit)
+		{
+			selectedObjects.SafeRemove(unit);
+
+			if (state == SelectionState.SelectedEnemyUnit || state == SelectionState.SelectedOwnUnit)
+			{
+				if (selectedObjects.SafeCount() == 0)
+				{
+					SetFreeState();
+				}
+			}
+		}
 
 		private void Update()
 		{
@@ -133,13 +171,9 @@ namespace Aberration
 
 					if (CheckForEnemyTarget(dragEndLocation, out Unit targetUnit))
 					{
-						foreach (Collider collider in selectedObjects)
+						foreach (Unit unit in selectedObjects)
 						{
-							Unit unit = collider.GetComponent<Unit>();
-							if (unit != null)
-							{
-								unit.SetTarget(targetUnit);
-							}
+							unit.SetTarget(targetUnit);
 						}
 					}
 					else
@@ -164,16 +198,105 @@ namespace Aberration
 			HandleSelection();
 		}
 
+		#region Set State
+		public void SetToActionTargetSelection(TeamActionState currentAction)
+		{
+			this.currentAction = currentAction;
+			state = SelectionState.ActionTargetSelection;
+		}
+
+		private void SetFreeState()
+		{
+			// Clear any selection
+			selectedObjects.SafeClear();
+
+			// Clear selected state of action
+			ownTeam.ClearSelectedAction();
+
+			// Switch back to free state
+			state = SelectionState.Free;
+		}
+
+		private void SetOwnUnitSelectedState()
+		{
+			state = SelectionState.SelectedOwnUnit;
+		}
+
+		private void SetEnemyUnitSelectedState()
+		{
+			state = SelectionState.SelectedEnemyUnit;
+		}
+		#endregion
+
 		private void HandleActionTargetSelection()
 		{
+			bool leftClickDown = Input.GetMouseButtonDown(0);
+			bool leftClickUp = Input.GetMouseButtonUp(0);
 
+			if (leftClickDown && !IsPointerOverUIElement())
+			{
+				selectStartLocation = GetMouseClickPosition();
+			}
+
+			if (leftClickUp && !IsPointerOverUIElement())
+			{
+				Debug.Log("Switching to Free");
+
+				EventDispatcher.FireActionCancelled(currentAction);
+				SetFreeState();
+
+				Vector3 selectEndLocation = GetMouseClickPosition();
+
+				Vector3 diff = selectEndLocation - selectStartLocation;
+				float lengthSq = Vector3.SqrMagnitude(diff);
+				if (lengthSq <= SingleTargetSelectionRangeSq)
+				{
+					TrySelectSingleObject(selectEndLocation);
+				}
+				else
+				{
+					// try selecting multiple objects in a box
+				}
+			}
+
+			bool rightClickUp = Input.GetMouseButtonUp(1);
+
+			if (rightClickUp && currentAction != null)
+			{
+				Vector3 clickPosition = GetMouseClickPosition();
+
+				// Get World Position At target
+
+				// Get Unit at target
+				Unit unit = null;
+				if (TrySelect(clickPosition, out RaycastHit unitHit, ~(1 >> unitMask)))
+				{
+					unit = unitHit.collider.GetComponent<Unit>();
+				}
+
+				Vector3 position = new Vector3();
+				if (TrySelect(clickPosition, out RaycastHit groundHit, ~(1 >> groundMask)))
+				{
+					position = groundHit.point;
+				}
+
+				// Try To Execute action
+				ActionParams actionParams = new ActionParams();
+				actionParams.camera = selectionCamera;
+				actionParams.sourceTeam = ownTeam;
+				actionParams.unit = unit;
+				actionParams.location = position;
+				if (currentAction.CanExecute(actionParams))
+				{
+					currentAction.Execute(actionParams);
+					EventDispatcher.FireActionExecuted(currentAction);
+				}
+			}
 		}
 
 		private void TrySelectSingleObject(Vector3 selectLocation)
 		{
-			Vector3 cameraLocation = selectionCamera.transform.position;
-			selectRay = selectLocation - cameraLocation;
-			if (Physics.Raycast(cameraLocation, selectRay, out RaycastHit unitHit, maxRayDistance, ~(1 >> unitMask)))
+			if (TrySelect(selectLocation, out RaycastHit unitHit, ~(1 >> unitMask)))
 			{
 				ClearSelection();
 
@@ -182,22 +305,35 @@ namespace Aberration
 				{
 					if (ownTeam.TeamID == unit.TeamID)
 					{
-						state = SelectionState.SelectedOwnUnit;
+						SetOwnUnitSelectedState();
 					}
 					else
 					{
-						state = SelectionState.SelectedEnemyUnit;
+						SetEnemyUnitSelectedState();
 					}
 
 					unit.SetSelected(true, ownTeam);
+					ownTeam.Controller.EventDispatcher.FireUnitSelected(unit);
 
-					ListUtils.SafeAdd(ref selectedObjects, unitHit.collider);
+					ListUtils.SafeAdd(ref selectedObjects, unit);
 				}
 			}
 			else
 			{
 				ClearSelection();
 			}
+		}
+
+		private bool TrySelect(Vector3 selectLocation, out RaycastHit unitHit, int layerMask)
+		{
+			Vector3 cameraLocation = selectionCamera.transform.position;
+			selectRay = selectLocation - cameraLocation;
+			if (Physics.Raycast(cameraLocation, selectRay, out unitHit, maxRayDistance, layerMask))
+			{
+				return true;
+			}
+
+			return false;
 		}
 
 		private void ClearSelection()
@@ -238,17 +374,11 @@ namespace Aberration
 
 		private void TrySettingMoveDestination(Vector3 selectLocation)
 		{
-			Vector3 cameraLocation = selectionCamera.transform.position;
-			selectRay = selectLocation - cameraLocation;
-			if (Physics.Raycast(cameraLocation, selectRay, out RaycastHit moveHit, maxRayDistance, ~(1 >> groundMask)))
+			if (TrySelect(selectLocation, out RaycastHit moveHit, ~(1 >> groundMask)))
 			{
-				foreach (Collider collider in selectedObjects)
+				foreach (Unit unit in selectedObjects)
 				{
-					Unit unit = collider.GetComponent<Unit>();
-					if (unit != null)
-					{
-						unit.SetMoveLocation(moveHit.point);
-					}
+					unit.SetMoveLocation(moveHit.point);
 				}
 			}
 		}
@@ -264,13 +394,9 @@ namespace Aberration
 
 				yeetForce = diff * yeetForceMultiplier;
 
-				foreach (Collider collider in selectedObjects)
+				foreach (Unit unit in selectedObjects)
 				{
-					Unit unit = collider.GetComponent<Unit>();
-					if (unit != null)
-					{
-						unit.Yeet(yeetForce);
-					}
+					unit.Yeet(yeetForce);
 				}
 			}
 		}
@@ -280,6 +406,37 @@ namespace Aberration
 			Vector3 mousePos = Input.mousePosition;
 			mousePos.z = selectionCamera.farClipPlane;
 			return selectionCamera.ScreenToWorldPoint(mousePos);
+		}
+
+		/// <summary>
+		/// Based on https://forum.unity.com/threads/how-to-detect-if-mouse-is-over-ui.1025533/
+		/// </summary>
+		/// <returns></returns>
+		public bool IsPointerOverUIElement()
+		{
+			return IsPointerOverUIElement(GetEventSystemRaycastResults());
+		}
+
+		//Returns 'true' if we touched or hovering on Unity UI element.
+		private bool IsPointerOverUIElement(List<RaycastResult> eventSystemRaycastResults)
+		{
+			for (int index = 0; index < eventSystemRaycastResults.Count; index++)
+			{
+				RaycastResult curRaysastResult = eventSystemRaycastResults[index];
+				if (curRaysastResult.gameObject.layer == uiLayer)
+					return true;
+			}
+			return false;
+		}
+
+		//Gets all event system raycast results of current mouse or touch position.
+		static List<RaycastResult> GetEventSystemRaycastResults()
+		{
+			PointerEventData eventData = new PointerEventData(EventSystem.current);
+			eventData.position = Input.mousePosition;
+			List<RaycastResult> raycastResults = new List<RaycastResult>();
+			EventSystem.current.RaycastAll(eventData, raycastResults);
+			return raycastResults;
 		}
 
 		private void OnDrawGizmosSelected()

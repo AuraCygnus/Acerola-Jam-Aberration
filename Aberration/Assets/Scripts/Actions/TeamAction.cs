@@ -6,9 +6,9 @@ namespace Aberration
     public struct ActionParams
 	{
         /// <summary>
-        /// GameState so that any extra info can be accessed.
+        /// Usually the main Camera.
         /// </summary>
-        public GameState gameState;
+        public Camera camera;
 
         /// <summary>
         /// Team executing the action.

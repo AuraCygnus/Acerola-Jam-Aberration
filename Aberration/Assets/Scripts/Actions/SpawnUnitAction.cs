@@ -26,7 +26,10 @@ namespace Aberration.Assets.Scripts.Actions
 			// Spawn the unit is position
 			Unit newUnit = Instantiate(unitPrefab, actionParams.location, Quaternion.identity);
 			// Initialise it
-			newUnit.Setup(actionParams.sourceTeam);
+			newUnit.Setup(actionParams.sourceTeam, actionParams.camera);
+
+			// Fire event that the unit spawned
+			actionParams.sourceTeam.Controller.EventDispatcher.FireUnitSpawned(newUnit);
 		}
 
 		private bool IsRangeValid(Team team, Vector3 targetLocation)

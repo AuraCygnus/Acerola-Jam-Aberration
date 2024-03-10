@@ -17,9 +17,17 @@ namespace Aberration
         [SerializeField]
         private Camera mainCamera;
 
+        public void Setup(Camera mainCamera)
+		{
+            this.mainCamera = mainCamera;
+        }
+
         // Update is called once per frame
         void Update()
         {
+            if (mainCamera == null)
+                return;
+
             Vector3 position = mainCamera.WorldToScreenPoint(followUnit.TargetTransform.position + offset);
 
             if (transform.position != position)

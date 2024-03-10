@@ -18,9 +18,24 @@ namespace Aberration.Assets.Scripts
 	{
 		[SerializeField]
 		private GameState gameState;
+		public GameState GameState
+		{
+			get { return gameState; }
+		}
 
 		[SerializeField]
 		private TeamOwnerType ownerType;
+		public TeamOwnerType OwnerType
+		{
+			get { return ownerType; }
+		}
+
+		[SerializeField]
+		private Controller controller;
+		public Controller Controller
+		{
+			get { return controller; }
+		}
 
 		[SerializeField]
 		private byte teamId;
@@ -61,13 +76,26 @@ namespace Aberration.Assets.Scripts
 
 		public void SetSelectedAction(TeamActionState actionState)
 		{
+			ClearSelectedAction();
+
+			PlayerController playerController = controller as PlayerController;
+			if (playerController != null)
+			{
+				if (actionState != null && actionState.CanSelect())
+					actionState.Select(playerController.SelectionCamera);
+
+				playerController.SetToActionTargetSelection(actionState);
+			}
+
+			controller.EventDispatcher.FireActionSelected(actionState);
+		}
+
+		public void ClearSelectedAction()
+		{
 			foreach (TeamActionState teamActionState in actions)
 			{
 				teamActionState.Deselect();
 			}
-
-			if (actionState != null && actionState.CanSelect())
-				actionState.Select(gameState);
 		}
 	}
 }

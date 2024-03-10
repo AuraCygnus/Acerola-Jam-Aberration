@@ -48,6 +48,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameState: {fileID: 0}
   ownerType: 0
+  controller: {fileID: 5035673581646639995}
   teamId: 0
   units: []
   actions:

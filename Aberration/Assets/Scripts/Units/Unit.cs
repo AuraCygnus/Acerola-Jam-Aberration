@@ -117,11 +117,12 @@ namespace Aberration.Assets.Scripts
 			SetIdleState();
 		}
 
-		public void Setup(Team team)
+		public void Setup(Team team, Camera camera)
 		{
 			this.team = team;
 
 			SetupTeam();
+			unitUI.FollowWorld.Setup(camera);
 		}
 
 		private void SetupTeam()
@@ -168,9 +169,31 @@ namespace Aberration.Assets.Scripts
 		{
 			this.targetUnit = targetUnit;
 
+			// Add UnitDefeated listener
+			targetUnit.team.Controller.EventDispatcher.UnitDefeated += OnUnitDefeated;
+
 			if (targetUnit != null)
 			{
 				UpdateTargetting();
+			}
+		}
+
+		private void OnUnitDefeated(Unit unit)
+		{
+			if (targetUnit != null && targetUnit == unit)
+			{
+				// Remove UnitDefeated listener
+				targetUnit.team.Controller.EventDispatcher.UnitDefeated -= OnUnitDefeated;
+
+				EndCombat();
+				targetUnit = null;
+				SetIdleState();
+			}
+			else if (state == UnitState.Fighting || state == UnitState.MovingToFight)
+			{
+				EndCombat();
+				targetUnit = null;
+				SetIdleState();
 			}
 		}
 
@@ -306,6 +329,13 @@ namespace Aberration.Assets.Scripts
 		{
 			if (!CanChangeState())
 				return;
+
+			// Clear any listeners
+			if (targetUnit != null)
+			{
+				// Remove UnitDefeated listener
+				targetUnit.team.Controller.EventDispatcher.UnitDefeated -= OnUnitDefeated;
+			}
 
 			navAgent.isStopped = true;
 			animationController.StopRagdollVelocity();
@@ -464,7 +494,7 @@ namespace Aberration.Assets.Scripts
 
 		private void ReduceHP(int reduction)
 		{
-			Debug.Log($"Reducing HP [reduction={reduction}]");
+			//Debug.Log($"Reducing HP [reduction={reduction}]");
 
 			if (reduction > 0)
 			{
@@ -487,6 +517,9 @@ namespace Aberration.Assets.Scripts
 		{
 			if (HasFinishedRagdoll())
 			{
+				// Fire event that the unit was defeated
+				team.Controller.EventDispatcher.FireUnitDefeated(this);
+
 				team.RemoveUnit(this);
 				Destroy(gameObject);
 			}

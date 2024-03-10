@@ -39,13 +39,13 @@ namespace Aberration
             return true;
         }
 
-		public void Select(GameState gameState)
+		public void Select(Camera camera)
 		{
 			if (action.ActionTargetType == ActionTargetType.Global)
 			{
                 // Execute immediately
                 ActionParams actionParams = new ActionParams();
-                actionParams.gameState = gameState;
+                actionParams.camera = camera;
                 actionParams.sourceTeam = team;
                 if (CanExecute(actionParams))
                     Execute(actionParams);

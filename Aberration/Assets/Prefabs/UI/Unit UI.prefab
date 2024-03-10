@@ -200,7 +200,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7d907d0574f31c41ad8e10cffff9e46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  followTransform: {fileID: 0}
+  followUnit: {fileID: 0}
   offset: {x: 0, y: 0.4, z: 0}
   mainCamera: {fileID: 0}
 --- !u!1 &6527011755070777140
@@ -440,6 +440,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a208dfb4252cc343a78ec6e2c50a897, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  followWorld: {fileID: 8605343475274293610}
   selectedIndicator: {fileID: 8302495193100402901}
   hpBar: {fileID: 4417442647875457911}
   allySelectionColor: {r: 1, g: 1, b: 1, a: 1}

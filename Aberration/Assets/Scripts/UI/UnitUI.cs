@@ -6,6 +6,13 @@ namespace Aberration
 	public class UnitUI : MonoBehaviour
     {
         [SerializeField]
+        private FollowWorld followWorld;
+        public FollowWorld FollowWorld
+		{
+            get { return followWorld; }
+		}
+
+        [SerializeField]
         private Image selectedIndicator;
 
         [SerializeField]

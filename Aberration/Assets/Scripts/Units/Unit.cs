@@ -307,7 +307,6 @@ namespace Aberration.Assets.Scripts
 			if (!CanChangeState())
 				return;
 
-
 			navAgent.isStopped = true;
 			animationController.StopRagdollVelocity();
 			animationController.SetDefeated();
@@ -496,7 +495,17 @@ namespace Aberration.Assets.Scripts
 
 		public void ResetToSafePosition()
 		{
+			if (NavMesh.SamplePosition(TargetTransform.position, out NavMeshHit hit, 1000f, NavMesh.AllAreas))
+			{
+				// Warp to the position on the NavMesh
+				navAgent.transform.position = hit.position;
+				TargetTransform.position = hit.position;
 
+				animationController.StopRagdollVelocity();
+
+				navAgent.enabled = false;
+				navAgent.enabled = true;
+			}
 		}
 	}
 }

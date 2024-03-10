@@ -366,9 +366,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7babcd69e11baf04ba5e703344f60f14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ownTeam: {fileID: 205538471}
   teams:
   - {fileID: 205538471}
   - {fileID: 533504826}
+  deathPlane: -10
+  updateRateSecs: 1
 --- !u!4 &1003682222
 Transform:
   m_ObjectHideFlags: 0
@@ -484,7 +487,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: -0.5, z: 0}
-  m_LocalScale: {x: 64, y: 1, z: 64}
+  m_LocalScale: {x: 32, y: 1, z: 32}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}

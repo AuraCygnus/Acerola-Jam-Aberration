@@ -5,14 +5,15 @@ using UnityEngine;
 
 namespace Aberration
 {
-	public enum SelectionState
+	public enum SelectionState : byte
 	{
 		Free,
 		SelectedOwnUnit,
-		SelectedEnemyUnit
+		SelectedEnemyUnit,
+		ActionTargetSelection
 	}
 
-	public class UnitSelectionController : MonoBehaviour
+	public class PlayerController : MonoBehaviour
 	{
 		[SerializeField]
 		private Camera selectionCamera;
@@ -69,6 +70,10 @@ namespace Aberration
 
 				case SelectionState.SelectedEnemyUnit:
 					HandleSelectedEnemyUnit();
+					break;
+
+				case SelectionState.ActionTargetSelection:
+					HandleActionTargetSelection();
 					break;
 			}
 		}
@@ -157,6 +162,11 @@ namespace Aberration
 		private void HandleSelectedEnemyUnit()
 		{
 			HandleSelection();
+		}
+
+		private void HandleActionTargetSelection()
+		{
+
 		}
 
 		private void TrySelectSingleObject(Vector3 selectLocation)

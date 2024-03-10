@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 8718600739565212217}
   - component: {fileID: 1627688765420932256}
   - component: {fileID: 7365002967283320328}
-  - component: {fileID: 4726854174138992204}
   m_Layer: 0
   m_Name: Camera
   m_TagString: MainCamera
@@ -115,7 +114,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28ef8c68bade09b41aca258d42a632f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lastTab: 1
+  lastTab: 2
   movementSettingsFoldout: 1
   zoomingSettingsFoldout: 0
   rotationSettingsFoldout: 1
@@ -161,22 +160,3 @@ MonoBehaviour:
   rotateLeftKey: 122
   useMouseRotation: 0
   mouseRotationKey: 324
---- !u!114 &4726854174138992204
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1007046606148826380}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c4164843e65184344b1a1cbc6dad6625, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  selectionCamera: {fileID: 1247057843853528240}
-  unitMask: 6
-  groundMask: 8
-  maxRayDistance: 1000
-  yeetForceMultiplier: 0.75
-  mouseYeetTriggerRange: 300
-  yeetRise: 1.2

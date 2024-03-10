@@ -17,6 +17,9 @@ namespace Aberration.Assets.Scripts
 	public class Team : MonoBehaviour
 	{
 		[SerializeField]
+		private GameState gameState;
+
+		[SerializeField]
 		private TeamOwnerType ownerType;
 
 		[SerializeField]
@@ -33,6 +36,13 @@ namespace Aberration.Assets.Scripts
 			get { return units; }
 		}
 
+		[SerializeField]
+		private List<TeamActionState> actions;
+		public IEnumerable<TeamActionState> Actions
+		{
+			get { return actions; }
+		}
+
 		public void AddUnit(Unit unit)
 		{
 			if (!units.SafeContains(unit))
@@ -47,6 +57,17 @@ namespace Aberration.Assets.Scripts
 		public bool HasUnits()
 		{
 			return units.SafeCount() > 0;
+		}
+
+		public void SetSelectedAction(TeamActionState actionState)
+		{
+			foreach (TeamActionState teamActionState in actions)
+			{
+				teamActionState.Deselect();
+			}
+
+			if (actionState != null && actionState.CanSelect())
+				actionState.Select(gameState);
 		}
 	}
 }

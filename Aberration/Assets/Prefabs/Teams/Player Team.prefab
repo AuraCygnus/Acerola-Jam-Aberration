@@ -68,10 +68,16 @@ MonoBehaviour:
   selectionCamera: {fileID: 0}
   unitMask: 6
   groundMask: 8
+  uiLayer: 0
   maxRayDistance: 1000
   yeetForceMultiplier: 0.75
   mouseYeetTriggerRange: 300
   ownTeam: {fileID: 3420141705408305348}
+  hud: {fileID: 0}
+  normalCursor: {fileID: 2800000, guid: 55670b54c676f6d40862c3861969b319, type: 3}
+  selectCursor: {fileID: 2800000, guid: ae548d6ecccca364f9791ff8a3a882d6, type: 3}
+  moveCursor: {fileID: 2800000, guid: de2868bf74c34c542843f455f6f207c8, type: 3}
+  attackCursor: {fileID: 2800000, guid: 119e4bce7aa2e794eab1f9b6abe72fa0, type: 3}
   yeetRise: 1.2
 --- !u!1001 &7132852169044126566
 PrefabInstance:

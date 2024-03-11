@@ -15,6 +15,14 @@ namespace Aberration
 		ActionTargetSelection
 	}
 
+	public enum CursorType : byte
+	{
+		Normal,
+		Select,
+		Move,
+		Attack
+	}
+
 	public class PlayerController : Controller
 	{
 		[SerializeField]
@@ -48,6 +56,9 @@ namespace Aberration
 		[SerializeField]
 		private HUD hud;
 
+		[SerializeField]
+		private Texture2D normalCursor, selectCursor, moveCursor, attackCursor;
+
 		/// <summary>
 		/// How muhc upward force to add to yeet
 		/// </summary>
@@ -78,6 +89,18 @@ namespace Aberration
 			get { return ownTeam.OwnerType; }
 		}
 
+		internal struct CursorInfo
+		{
+			public CursorType cursorType;
+			public Unit unit;
+
+			public CursorInfo(CursorType cursorType, Unit unit)
+			{
+				this.cursorType = cursorType;
+				this.unit = unit;
+			}
+		}
+
 		protected override void Awake()
 		{
 			base.Awake();
@@ -100,56 +123,85 @@ namespace Aberration
 
 		private void Update()
 		{
+			//Debug.Log($"Update [state={state}]");
+
+			CursorType cursorType = CursorType.Normal;
 			switch (state)
 			{
 				case SelectionState.Free:
-					HandleFreeState();
+					cursorType = HandleFreeState();
 					break;
 
 				case SelectionState.SelectedOwnUnit:
-					HandleSelectedOwnUnits();
+					cursorType = HandleSelectedOwnUnits();
 					break;
 
 				case SelectionState.SelectedEnemyUnit:
-					HandleSelectedEnemyUnit();
+					cursorType = HandleSelectedEnemyUnit();
 					break;
 
 				case SelectionState.ActionTargetSelection:
-					HandleActionTargetSelection();
+					cursorType = HandleActionTargetSelection();
+					break;
+			}
+
+			SetCursor(cursorType);
+		}
+
+		private void SetCursor(CursorType cursorType)
+		{
+			switch (cursorType)
+			{
+				case CursorType.Normal:
+					Cursor.SetCursor(normalCursor, new Vector2(normalCursor.width, 0f), CursorMode.Auto);
+					break;
+
+				case CursorType.Attack:
+					Cursor.SetCursor(attackCursor, new Vector2(attackCursor.width * 0.5f, attackCursor.height * 0.5f), CursorMode.Auto);
+					break;
+
+				case CursorType.Move:
+					Cursor.SetCursor(moveCursor, new Vector2(moveCursor.width * 0.5f, moveCursor.height * 0.5f), CursorMode.Auto);
+					break;
+
+				case CursorType.Select:
+					Cursor.SetCursor(selectCursor, new Vector2(selectCursor.width * 0.5f, selectCursor.height * 0.5f), CursorMode.Auto);
 					break;
 			}
 		}
 
-		private void HandleFreeState()
+		private CursorType HandleFreeState()
 		{
-			HandleSelection();
+			return HandleSelection().cursorType;
 		}
 
-		private void HandleSelection()
+		private CursorInfo HandleSelection()
 		{
 			bool leftClickDown = Input.GetMouseButtonDown(0);
+			bool leftClickHeld = Input.GetMouseButton(0);
 			bool leftClickUp = Input.GetMouseButtonUp(0);
+
+			Vector3 selectLocation = GetMouseClickPosition();
+			CursorInfo cursorInfo = (IsOverUnit(selectLocation, out Unit hoverUnit)) ? new CursorInfo(CursorType.Select, hoverUnit) : new CursorInfo(CursorType.Normal, null);
 
 			if (leftClickDown)
 			{
 				startPos = Input.mousePosition;
-				selectStartLocation = GetMouseClickPosition();
+				selectStartLocation = selectLocation;
 			}
 
-			if (Input.GetMouseButton(0))
+			if (leftClickHeld)
 			{
 				UpdateSelectionBox(Input.mousePosition);
 			}
 
 			if (leftClickUp)
 			{
-				Vector3 selectEndLocation = GetMouseClickPosition();
-
-				Vector3 diff = selectEndLocation - selectStartLocation;
+				Vector3 diff = selectLocation - selectStartLocation;
 				float lengthSq = Vector3.SqrMagnitude(diff);
 				if (lengthSq <= SingleTargetSelectionRangeSq)
 				{
-					TrySelectSingleObject(selectEndLocation);
+					TrySelectSingleObject(cursorInfo.unit);
 				}
 				else
 				{
@@ -157,6 +209,8 @@ namespace Aberration
 					ReleaseSelectionBox();
 				}
 			}
+
+			return cursorInfo;
 		}
 
 		/// <summary>
@@ -193,8 +247,20 @@ namespace Aberration
 		private void ReleaseSelectionBox()
 		{
 			hud.SelectionBox.gameObject.SetActive(false);
+
+			CanvasScaler scaler = hud.Canvas.GetComponent<CanvasScaler>();
+
 			Vector2 min = hud.SelectionBox.anchoredPosition - (hud.SelectionBox.sizeDelta / 2);
 			Vector2 max = hud.SelectionBox.anchoredPosition + (hud.SelectionBox.sizeDelta / 2);
+
+			if (scaler.uiScaleMode == CanvasScaler.ScaleMode.ScaleWithScreenSize)
+			{
+				// Have to multiply by Canvas scaleFactor
+				float scaleFactor = hud.Canvas.scaleFactor;
+				min *= scaleFactor;
+				max *= scaleFactor;
+			}
+
 			foreach (Unit unit in ownTeam.Units)
 			{
 				Vector3 screenPos = selectionCamera.WorldToScreenPoint(unit.transform.position);
@@ -209,18 +275,27 @@ namespace Aberration
 			}
 		}
 
-		private void HandleSelectedOwnUnits()
+		private CursorType HandleSelectedOwnUnits()
 		{
 			// Still need to consider selection
-			HandleSelection();
-
-			// Also need to consider Move, Attack & Yeet actions
-			bool rightClickDown = Input.GetMouseButtonDown(1);
-			bool rightClickUp = Input.GetMouseButtonUp(1);
+			CursorInfo cursorInfo = HandleSelection();
 
 			int numSelectedObjects = selectedObjects.SafeCount();
 			if (numSelectedObjects > 0)
 			{
+				// Also need to consider Move, Attack & Yeet actions
+				bool rightClickDown = Input.GetMouseButtonDown(1);
+				bool rightClickUp = Input.GetMouseButtonUp(1);
+
+				if (cursorInfo.unit != null)
+				{
+					cursorInfo.cursorType = (cursorInfo.unit.TeamID == ownTeam.TeamID) ? CursorType.Select : CursorType.Attack;
+				}
+				else
+				{
+					cursorInfo.cursorType = CursorType.Move;
+				}
+
 				if (rightClickDown)
 				{
 					startPos = Input.mousePosition;
@@ -235,22 +310,22 @@ namespace Aberration
 
 				if (rightClickUp)
 				{
-					Vector3 dragEndLocation = GetMouseClickPosition();
-
-					if (CheckForEnemyTarget(dragEndLocation, out Unit targetUnit))
+					//Debug.Log("HandleSelectedOwnUnits");
+					if (CheckForEnemyTarget(cursorInfo.unit))
 					{
 						foreach (Unit unit in selectedObjects)
 						{
-							unit.SetTarget(targetUnit);
+							unit.SetTarget(cursorInfo.unit);
 						}
 					}
 					else
 					{
-						Vector3 diff = dragEndLocation - dragStartLocation;
+						Vector3 selectLocation = GetMouseClickPosition();
+						Vector3 diff = selectLocation - dragStartLocation;
 						float lengthSq = Vector3.SqrMagnitude(diff);
 						if (lengthSq <= (mouseYeetTriggerRange * mouseYeetTriggerRange))
 						{
-							TrySettingMoveDestination(dragEndLocation);
+							TrySettingMoveDestination(selectLocation);
 							ownTeam.Controller.EventDispatcher.FireYeetCancel();
 						}
 						else
@@ -263,6 +338,8 @@ namespace Aberration
 					HandleYeetFinish();
 				}
 			}
+
+			return cursorInfo.cursorType;
 		}
 
 		private void HandleYeetArrowUpdate(Vector2 curMousePos)
@@ -300,9 +377,10 @@ namespace Aberration
 				hud.YeetImage.gameObject.SetActive(false);
 		}
 
-		private void HandleSelectedEnemyUnit()
+		private CursorType HandleSelectedEnemyUnit()
 		{
-			HandleSelection();
+			CursorInfo cursorInfo = HandleSelection();
+			return cursorInfo.cursorType;
 		}
 
 		#region Set State
@@ -335,15 +413,23 @@ namespace Aberration
 		}
 		#endregion
 
-		private void HandleActionTargetSelection()
+		private CursorType HandleActionTargetSelection()
 		{
 			bool leftClickDown = Input.GetMouseButtonDown(0);
+			bool leftClickHeld = Input.GetMouseButton(0);
 			bool leftClickUp = Input.GetMouseButtonUp(0);
+			Vector3 selectLocation = GetMouseClickPosition();
+			CursorInfo cursorInfo = (IsOverUnit(selectLocation, out Unit hoverUnit)) ? new CursorInfo(CursorType.Select, hoverUnit) : new CursorInfo(CursorType.Normal, null);
 
 			if (leftClickDown && !IsPointerOverUIElement())
 			{
 				startPos = Input.mousePosition;
-				selectStartLocation = GetMouseClickPosition();
+				selectStartLocation = selectLocation;
+			}
+
+			if (leftClickHeld && !IsPointerOverUIElement())
+			{
+				UpdateSelectionBox(Input.mousePosition);
 			}
 
 			if (leftClickUp && !IsPointerOverUIElement())
@@ -353,17 +439,18 @@ namespace Aberration
 				EventDispatcher.FireActionCancelled(currentAction);
 				SetFreeState();
 
-				Vector3 selectEndLocation = GetMouseClickPosition();
+				Vector3 selectEndLocation = selectLocation;
 
 				Vector3 diff = selectEndLocation - selectStartLocation;
 				float lengthSq = Vector3.SqrMagnitude(diff);
 				if (lengthSq <= SingleTargetSelectionRangeSq)
 				{
-					TrySelectSingleObject(selectEndLocation);
+					TrySelectSingleObject(cursorInfo.unit);
 				}
 				else
 				{
-					// try selecting multiple objects in a box
+					// Try selecting multiple objects in a box
+					ReleaseSelectionBox();
 				}
 			}
 
@@ -371,7 +458,7 @@ namespace Aberration
 
 			if (rightClickUp && currentAction != null)
 			{
-				Vector3 clickPosition = GetMouseClickPosition();
+				Vector3 clickPosition = selectLocation;
 
 				// Get World Position At target
 
@@ -400,33 +487,46 @@ namespace Aberration
 					EventDispatcher.FireActionExecuted(currentAction);
 				}
 			}
+
+			return cursorInfo.cursorType;
 		}
 
-		private void TrySelectSingleObject(Vector3 selectLocation)
+		private void TrySelectSingleObject(Unit hoverUnit)
 		{
-			if (TrySelect(selectLocation, out RaycastHit unitHit, ~(1 >> unitMask)))
+			if (hoverUnit != null)
 			{
 				ClearSelection();
 
-				Unit unit = unitHit.collider.GetComponent<Unit>();
-				if (unit != null)
+				if (ownTeam.TeamID == hoverUnit.TeamID)
 				{
-					if (ownTeam.TeamID == unit.TeamID)
-					{
-						SetOwnUnitSelectedState();
-					}
-					else
-					{
-						SetEnemyUnitSelectedState();
-					}
-
-					SetUnitSelected(unit);
+					SetOwnUnitSelectedState();
 				}
+				else
+				{
+					SetEnemyUnitSelectedState();
+				}
+
+				SetUnitSelected(hoverUnit);
 			}
 			else
 			{
 				ClearSelection();
 			}
+		}
+
+		private bool IsOverUnit(Vector3 selectLocation, out Unit unit)
+		{
+			if (TrySelect(selectLocation, out RaycastHit unitHit, ~(1 >> unitMask)))
+			{
+				unit = unitHit.collider.GetComponent<Unit>();
+				if (unit != null)
+				{
+					return true;
+				}
+			}
+
+			unit = null;
+			return false;
 		}
 
 		private void SetUnitSelected(Unit unit)
@@ -464,24 +564,16 @@ namespace Aberration
 			selectedObjects.SafeClear();
 		}
 
-		private bool CheckForEnemyTarget(Vector3 selectLocation, out Unit unit)
+		private bool CheckForEnemyTarget(Unit targetUnit)
 		{
-			Vector3 cameraLocation = selectionCamera.transform.position;
-			selectRay = selectLocation - cameraLocation;
-			if (Physics.Raycast(cameraLocation, selectRay, out RaycastHit unitHit, maxRayDistance, ~(1 >> unitMask)))
+			if (targetUnit != null)
 			{
-				Unit targetUnit = unitHit.collider.GetComponent<Unit>();
-				if (targetUnit != null)
+				if (ownTeam.TeamID != targetUnit.TeamID)
 				{
-					if (ownTeam.TeamID != targetUnit.TeamID)
-					{
-						unit = targetUnit;
-						return true;
-					}
+					return true;
 				}
 			}
 
-			unit = null;
 			return false;
 		}
 
@@ -509,7 +601,8 @@ namespace Aberration
 
 				foreach (Unit unit in selectedObjects)
 				{
-					unit.Yeet(yeetForce);
+					if (unit != null)
+						unit.Yeet(yeetForce);
 				}
 			}
 		}
@@ -554,14 +647,17 @@ namespace Aberration
 
 		private void OnDrawGizmosSelected()
 		{
-			Gizmos.color = Color.red;
-			Vector3 cameraPos = selectionCamera.transform.position;
-			Vector3 ray = Vector3.Normalize(selectRay);
-			ray *= maxRayDistance;
-			Gizmos.DrawLine(cameraPos, cameraPos + ray);
+			if (selectionCamera != null)
+			{
+				Gizmos.color = Color.red;
+				Vector3 cameraPos = selectionCamera.transform.position;
+				Vector3 ray = Vector3.Normalize(selectRay);
+				ray *= maxRayDistance;
+				Gizmos.DrawLine(cameraPos, cameraPos + ray);
 
-			Gizmos.color = Color.cyan;
-			Gizmos.DrawLine(dragStartLocation, dragStartLocation + yeetForce);
+				Gizmos.color = Color.cyan;
+				Gizmos.DrawLine(dragStartLocation, dragStartLocation + yeetForce);
+			}
 		}
 	}
 }

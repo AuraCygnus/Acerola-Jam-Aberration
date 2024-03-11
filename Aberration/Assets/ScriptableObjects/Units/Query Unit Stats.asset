@@ -15,8 +15,8 @@ MonoBehaviour:
   moveSpeed: 1
   turnSpeed: 120
   acceleration: 4
-  radius: 0.5
-  height: 4
+  radius: 0.4
+  height: 1
   maxHP: 10
   attack: 2
   armour: 1
@@ -27,5 +27,4 @@ MonoBehaviour:
   recoverAnimStateName: 0060_Pose_Recover
   recoverTimeSecs: 1
   combatAnimStateName: 0105_Fighting
-  attackTimeOffset: 1
-  attackTimeTotal: 2
+  delayBetweenAttacks: 0.2

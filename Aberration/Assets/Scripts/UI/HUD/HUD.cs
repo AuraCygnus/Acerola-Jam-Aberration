@@ -27,6 +27,13 @@ namespace Aberration
 		}
 
 		[SerializeField]
+		private RectTransform yeetImage;
+		public RectTransform YeetImage
+		{
+			get { return yeetImage; }
+		}
+
+		[SerializeField]
 		private ActionsPanel actionsPanel;
 
 		private void OnEnable()

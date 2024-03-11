@@ -223,8 +223,14 @@ namespace Aberration
 			{
 				if (rightClickDown)
 				{
+					startPos = Input.mousePosition;
 					dragStartLocation = GetMouseClickPosition();
 					ownTeam.Controller.EventDispatcher.FireYeetStart();
+				}
+
+				if (Input.GetMouseButton(1))
+				{
+					HandleYeetArrowUpdate(Input.mousePosition);
 				}
 
 				if (rightClickUp)
@@ -253,8 +259,45 @@ namespace Aberration
 							ownTeam.Controller.EventDispatcher.FireYeetEnd();
 						}
 					}
+
+					HandleYeetFinish();
 				}
 			}
+		}
+
+		private void HandleYeetArrowUpdate(Vector2 curMousePos)
+		{
+			if (!hud.YeetImage.gameObject.activeInHierarchy)
+				hud.YeetImage.gameObject.SetActive(true);
+
+			Vector2 between = curMousePos - startPos;
+			float angle = Vector2.SignedAngle(Vector2.right, between);
+
+			CanvasScaler scaler = hud.Canvas.GetComponent<CanvasScaler>();
+			if (scaler.uiScaleMode == CanvasScaler.ScaleMode.ScaleWithScreenSize)
+			{
+				// Have to divide by Canvas scaleFactor
+				float scaleFactor = hud.Canvas.scaleFactor;
+				float width = between.x / scaleFactor;
+				float height = between.y / scaleFactor;
+				hud.YeetImage.sizeDelta = new Vector2(Mathf.Abs(between.magnitude), hud.YeetImage.sizeDelta.y);
+				hud.YeetImage.anchoredPosition = (startPos / scaleFactor) + new Vector2(width / 2, height / 2);
+				hud.YeetImage.localRotation = Quaternion.Euler(0f, 0f, angle);
+			}
+			else
+			{
+				float width = between.x;
+				float height = between.y;
+				hud.YeetImage.sizeDelta = new Vector2(Mathf.Abs(between.magnitude), hud.YeetImage.sizeDelta.y);
+				hud.YeetImage.anchoredPosition = startPos + new Vector2(width / 2, height / 2);
+				hud.YeetImage.localRotation = Quaternion.Euler(0f, 0f, angle);
+			}
+		}
+
+		private void HandleYeetFinish()
+		{
+			if (hud.YeetImage.gameObject.activeInHierarchy)
+				hud.YeetImage.gameObject.SetActive(false);
 		}
 
 		private void HandleSelectedEnemyUnit()

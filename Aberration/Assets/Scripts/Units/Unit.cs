@@ -266,6 +266,7 @@ namespace Aberration.Assets.Scripts
 			if (!CanChangeState())
 				return;
 
+			SetNavMeshPosition();
 			animationController.SetResettingBones();
 			state = UnitState.ResettingBones;
 		}
@@ -528,17 +529,26 @@ namespace Aberration.Assets.Scripts
 
 		public void ResetToSafePosition()
 		{
-			if (NavMesh.SamplePosition(TargetTransform.position, out NavMeshHit hit, 1000f, NavMesh.AllAreas))
+			if (SetNavMeshPosition())
 			{
-				// Warp to the position on the NavMesh
-				navAgent.transform.position = hit.position;
-				TargetTransform.position = hit.position;
-
 				animationController.StopRagdollVelocity();
 
 				navAgent.enabled = false;
 				navAgent.enabled = true;
 			}
+		}
+
+		private bool SetNavMeshPosition()
+		{
+			if (NavMesh.SamplePosition(TargetTransform.position, out NavMeshHit hit, 1000f, NavMesh.AllAreas))
+			{
+				// Warp to the position on the NavMesh
+				navAgent.transform.position = hit.position;
+				TargetTransform.position = hit.position;
+				return true;
+			}
+
+			return false;
 		}
 	}
 }

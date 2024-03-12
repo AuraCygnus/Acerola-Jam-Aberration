@@ -33,9 +33,17 @@ namespace Aberration
         [SerializeField]
         private float updateRateSecs = 1f;
 
+        [SerializeField]
+        private HUD hud;
+
         private bool updating;
 
-        public void AddTeam(Team team)
+		protected void Awake()
+		{
+            //Application.targetFrameRate = 60;
+		}
+
+		public void AddTeam(Team team)
 		{
             if (!teams.SafeContains(team))
                 ListUtils.SafeAdd(ref teams, team);
@@ -80,19 +88,21 @@ namespace Aberration
 
             if (AreOtherTeamsWipedOut())
 			{
-
-			}
+                Win();
+            }
 		}
 
         private void Lose()
 		{
-
-		}
+            // Show Lose HUD
+            hud.DisplayLose();
+        }
 
         private void Win()
 		{
-
-		}
+            // Show Win HUD
+            hud.DisplayWin();
+        }
 
         private bool AreOtherTeamsWipedOut()
 		{

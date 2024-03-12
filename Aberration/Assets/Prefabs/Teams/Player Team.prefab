@@ -70,8 +70,8 @@ MonoBehaviour:
   groundMask: 8
   uiLayer: 0
   maxRayDistance: 1000
-  yeetForceMultiplier: 0.75
-  mouseYeetTriggerRange: 300
+  yeetForceMultiplier: 0.65
+  mouseYeetTriggerRange: 200
   ownTeam: {fileID: 3420141705408305348}
   hud: {fileID: 0}
   normalCursor: {fileID: 2800000, guid: 55670b54c676f6d40862c3861969b319, type: 3}

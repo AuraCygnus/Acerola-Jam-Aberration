@@ -554,7 +554,7 @@ namespace Aberration
 			int numSelected = selectedObjects.SafeCount();
 			for (int i = 0; i < numSelected; i++)
 			{
-				Unit unit = selectedObjects[i].GetComponent<Unit>();
+				Unit unit = selectedObjects[i];
 				if (unit != null)
 				{
 					unit.SetSelected(false, ownTeam);

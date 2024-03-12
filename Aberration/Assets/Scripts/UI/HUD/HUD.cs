@@ -1,4 +1,5 @@
 using Aberration.Assets.Scripts;
+using Aberration.Assets.Scripts.UI.HUD.Win_Lose;
 using UnityEngine;
 
 namespace Aberration
@@ -34,6 +35,9 @@ namespace Aberration
 		}
 
 		[SerializeField]
+		private LevelWinLosePanel winLosePanel;
+
+		[SerializeField]
 		private ActionsPanel actionsPanel;
 
 		private void OnEnable()
@@ -45,6 +49,18 @@ namespace Aberration
 		public void Setup(Team team)
 		{
 			actionsPanel.Setup(team);
+		}
+
+		public void DisplayWin()
+		{
+			winLosePanel.DisplayWin();
+			winLosePanel.gameObject.SetActive(true);
+		}
+
+		public void DisplayLose()
+		{
+			winLosePanel.DisplayLose();
+			winLosePanel.gameObject.SetActive(true);
 		}
     }
 }

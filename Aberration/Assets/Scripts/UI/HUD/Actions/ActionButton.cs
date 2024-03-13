@@ -15,6 +15,15 @@ namespace Aberration
         private TextMeshProUGUI cooldownText;
 
         [SerializeField]
+        private AudioSource audioSource;
+
+        [SerializeField]
+        private AudioClip confirmSound;
+
+        [SerializeField]
+        private AudioClip cancelSound;
+
+        [SerializeField]
         private float updateRateSecs = 0.25f;
 
         [Header("Icon")]
@@ -109,6 +118,7 @@ namespace Aberration
 
         private void OnActionClick()
 		{
+            audioSource.PlayOneShot(confirmSound, 0.5f);
             team.SetSelectedAction(actionState);
         }
     }

@@ -19,7 +19,10 @@ namespace Aberration.Assets.Scripts.UI.HUD.Win_Lose
 
 		public void DisplayWin()
 		{
-			bool isFinalLevel = (SceneManager.GetActiveScene().buildIndex + 1) >= SceneManager.sceneCount;
+			int currentLevel = SceneManager.GetActiveScene().buildIndex;
+			int numLevels = SceneManager.sceneCountInBuildSettings;
+			bool isFinalLevel = currentLevel >= numLevels;
+			Debug.Log($"Level [current={currentLevel}, count={numLevels}]");
 			if (isFinalLevel)
 			{
 				headerText.SetText("CONGLATURATION!!!\nA WINNER IS YOU");

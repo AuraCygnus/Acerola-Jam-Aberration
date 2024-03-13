@@ -146,6 +146,11 @@ namespace Aberration
 			}
 
 			SetCursor(cursorType);
+
+			if (Input.GetKeyUp(KeyCode.Escape))
+			{
+				hud.Pause();
+			}
 		}
 
 		private void SetCursor(CursorType cursorType)

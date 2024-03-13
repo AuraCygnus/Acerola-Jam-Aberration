@@ -1,5 +1,7 @@
 using Aberration.Assets.Scripts;
 using Aberration.Assets.Scripts.UI.HUD.Win_Lose;
+using Aberration.Assets.Scripts.UI.Menus;
+using Aberration.Assets.Scripts.Utils;
 using UnityEngine;
 
 namespace Aberration
@@ -40,6 +42,9 @@ namespace Aberration
 		[SerializeField]
 		private ActionsPanel actionsPanel;
 
+		[SerializeField]
+		private PauseMenu pausePanel;
+
 		private void OnEnable()
 		{
 			if (team != null)
@@ -61,6 +66,12 @@ namespace Aberration
 		{
 			winLosePanel.DisplayLose();
 			winLosePanel.gameObject.SetActive(true);
+		}
+
+		public void Pause()
+		{
+			GameSystemUtils.SetPaused(true);
+			pausePanel.gameObject.SetActive(true);
 		}
     }
 }

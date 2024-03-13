@@ -1,4 +1,5 @@
-﻿using TMPro;
+﻿using Aberration.Assets.Scripts.Utils;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -19,11 +20,7 @@ namespace Aberration.Assets.Scripts.UI.HUD.Win_Lose
 
 		public void DisplayWin()
 		{
-			int currentLevel = SceneManager.GetActiveScene().buildIndex;
-			int numLevels = SceneManager.sceneCountInBuildSettings;
-			bool isFinalLevel = currentLevel >= numLevels;
-			Debug.Log($"Level [current={currentLevel}, count={numLevels}]");
-			if (isFinalLevel)
+			if (SceneUtils.IsFinalLevel())
 			{
 				headerText.SetText("CONGLATURATION!!!\nA WINNER IS YOU");
 				buttonText.SetText("Main Menu");
@@ -49,13 +46,12 @@ namespace Aberration.Assets.Scripts.UI.HUD.Win_Lose
 
 		private void OnMainMenuClick()
 		{
-			SceneManager.LoadScene(0);
+			SceneUtils.LoadMainMenu();
 		}
 
 		private void OnContinueClick()
 		{
-
-			SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+			SceneUtils.NextLevel();
 		}
 
 		private void OnRetryClick()

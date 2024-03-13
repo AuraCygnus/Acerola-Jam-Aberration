@@ -179,6 +179,10 @@ PrefabInstance:
       propertyPath: m_audioClip
       value: 
       objectReference: {fileID: 8300000, guid: c3d5647fd525c57479f0a0d25ba7ce2e, type: 3}
+    - target: {fileID: 6317335226834461217, guid: 6f8786b9cc737414380db91705118df8, type: 3}
+      propertyPath: m_PlayOnAwake
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -652,6 +656,30 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2564899841860582287, guid: 45d3e7b9411ab734c9b3e695bc05f14d, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2564899841860582287, guid: 45d3e7b9411ab734c9b3e695bc05f14d, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2564899841860582287, guid: 45d3e7b9411ab734c9b3e695bc05f14d, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2564899841860582287, guid: 45d3e7b9411ab734c9b3e695bc05f14d, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2564899841860582287, guid: 45d3e7b9411ab734c9b3e695bc05f14d, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2564899841860582287, guid: 45d3e7b9411ab734c9b3e695bc05f14d, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4716277997658107384, guid: 45d3e7b9411ab734c9b3e695bc05f14d, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -679,6 +707,30 @@ PrefabInstance:
     - target: {fileID: 4755230827371689619, guid: 45d3e7b9411ab734c9b3e695bc05f14d, type: 3}
       propertyPath: m_Name
       value: Start Menu Panel
+      objectReference: {fileID: 0}
+    - target: {fileID: 6841712291066541699, guid: 45d3e7b9411ab734c9b3e695bc05f14d, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6841712291066541699, guid: 45d3e7b9411ab734c9b3e695bc05f14d, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6841712291066541699, guid: 45d3e7b9411ab734c9b3e695bc05f14d, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6841712291066541699, guid: 45d3e7b9411ab734c9b3e695bc05f14d, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6841712291066541699, guid: 45d3e7b9411ab734c9b3e695bc05f14d, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6841712291066541699, guid: 45d3e7b9411ab734c9b3e695bc05f14d, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

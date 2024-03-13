@@ -1962,7 +1962,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7365002967283320328, guid: f6169d0092fe58a459ea83a473dc9ec4, type: 3}
       propertyPath: limitX
-      value: 20
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 7365002967283320328, guid: f6169d0092fe58a459ea83a473dc9ec4, type: 3}
       propertyPath: limitY

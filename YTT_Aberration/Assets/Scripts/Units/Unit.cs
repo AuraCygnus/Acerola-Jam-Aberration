@@ -241,7 +241,7 @@ namespace Aberration.Assets.Scripts
 			if (state == UnitState.Fighting)
 				EndCombat();
 
-			navAgent.isStopped = false;
+			navAgent.enabled = true;
 			animationController.SetMoving();
 			state = UnitState.Moving;
 		}
@@ -255,7 +255,7 @@ namespace Aberration.Assets.Scripts
 				EndCombat();
 
 			animationController.SetYeeted();
-			navAgent.isStopped = true;
+			navAgent.enabled = false;
 			selectionCollider.enabled = false;
 			animationController.SetRagdollEnabled(true);
 			state = UnitState.Yeeted;
@@ -289,6 +289,7 @@ namespace Aberration.Assets.Scripts
 			if (state == UnitState.Fighting)
 				EndCombat();
 
+			navAgent.enabled = true;
 			selectionCollider.enabled = true;
 			animationController.SetIdle();
 			state = UnitState.Idle;
@@ -302,7 +303,7 @@ namespace Aberration.Assets.Scripts
 			if (state == UnitState.Fighting)
 				EndCombat();
 
-			navAgent.isStopped = false;
+			navAgent.enabled = true;
 			animationController.SetMovingToFight();
 			state = UnitState.MovingToFight;
 		}
@@ -314,7 +315,7 @@ namespace Aberration.Assets.Scripts
 
 			Debug.Log($"Set Fighting");
 
-			navAgent.isStopped = false;
+			navAgent.enabled = true;
 			animationController.SetFighting();
 
 			animationController.AnimationHandler.AttackImpact -= OnAttackImpact;
@@ -338,7 +339,7 @@ namespace Aberration.Assets.Scripts
 				targetUnit.team.Controller.EventDispatcher.UnitDefeated -= OnUnitDefeated;
 			}
 
-			navAgent.isStopped = true;
+			navAgent.enabled = false;
 			animationController.StopRagdollVelocity();
 			animationController.SetDefeated();
 			state = UnitState.Defeated;

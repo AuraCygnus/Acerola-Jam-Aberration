@@ -266,6 +266,8 @@ namespace Aberration
 				max *= scaleFactor;
 			}
 
+			ClearSelection();
+
 			foreach (Unit unit in ownTeam.Units)
 			{
 				Vector3 screenPos = selectionCamera.WorldToScreenPoint(unit.transform.position);
@@ -500,6 +502,8 @@ namespace Aberration
 		{
 			if (hoverUnit != null)
 			{
+				hud.SelectionBox.gameObject.SetActive(false);
+
 				ClearSelection();
 
 				if (ownTeam.TeamID == hoverUnit.TeamID)

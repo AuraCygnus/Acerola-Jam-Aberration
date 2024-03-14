@@ -592,7 +592,8 @@ namespace Aberration
 			{
 				foreach (Unit unit in selectedObjects)
 				{
-					unit.SetMoveLocation(moveHit.point);
+					if (unit != null)
+						unit.SetMoveLocation(moveHit.point);
 				}
 			}
 		}

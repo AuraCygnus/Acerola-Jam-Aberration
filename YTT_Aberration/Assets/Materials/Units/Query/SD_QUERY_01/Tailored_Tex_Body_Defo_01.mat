@@ -106,7 +106,7 @@ Material:
     - _ShadeToony: 0.9
     - _ShadowTex: 0
     - _SpecIntensityTexWeight: 0.1
-    - _SpecPowerModifier: 16
+    - _SpecPowerModifier: 4
     - _SpecWeight: 0.7
     - _Specular: 1
     - _SrcBlend: 1

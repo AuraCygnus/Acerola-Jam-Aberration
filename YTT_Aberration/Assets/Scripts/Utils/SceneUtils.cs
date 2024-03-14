@@ -45,7 +45,7 @@ namespace Aberration.Assets.Scripts.Utils
 		{
 			int numLevels = SceneManager.sceneCountInBuildSettings;
 			Debug.Log($"Level [levelIndex={levelIndex}, count={numLevels}]");
-			return levelIndex >= numLevels;
+			return levelIndex >= (numLevels - 1);
 		}
 	}
 }

@@ -147,7 +147,7 @@ namespace Aberration.Assets.Scripts
 			this.moveLocation = moveLocation;
 
 			// Set nav agent move location
-			if (navAgent.SetDestination(moveLocation))
+			if (navAgent != null && navAgent.SetDestination(moveLocation))
 			{
 				SetMovingState();
 			}

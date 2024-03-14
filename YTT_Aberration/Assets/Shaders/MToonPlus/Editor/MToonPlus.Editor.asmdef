@@ -1,0 +1,19 @@
+{
+    "name": "MToonPlus",
+    "rootNamespace": "",
+    "references": [
+        "GUID:a9bc101fb0471f94a8f99fd242fdd934",
+        "GUID:dddf8398e965f254cae2d7519d7f67d2"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

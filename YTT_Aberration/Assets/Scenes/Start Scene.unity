@@ -708,6 +708,30 @@ PrefabInstance:
       propertyPath: m_Name
       value: Start Menu Panel
       objectReference: {fileID: 0}
+    - target: {fileID: 6119400224512465115, guid: 45d3e7b9411ab734c9b3e695bc05f14d, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6119400224512465115, guid: 45d3e7b9411ab734c9b3e695bc05f14d, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6119400224512465115, guid: 45d3e7b9411ab734c9b3e695bc05f14d, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6119400224512465115, guid: 45d3e7b9411ab734c9b3e695bc05f14d, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6119400224512465115, guid: 45d3e7b9411ab734c9b3e695bc05f14d, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6119400224512465115, guid: 45d3e7b9411ab734c9b3e695bc05f14d, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6841712291066541699, guid: 45d3e7b9411ab734c9b3e695bc05f14d, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -731,10 +755,6 @@ PrefabInstance:
     - target: {fileID: 6841712291066541699, guid: 45d3e7b9411ab734c9b3e695bc05f14d, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7878920940284794302, guid: 45d3e7b9411ab734c9b3e695bc05f14d, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0.000030517578
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

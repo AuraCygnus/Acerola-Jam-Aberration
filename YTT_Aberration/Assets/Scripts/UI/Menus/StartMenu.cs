@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using YTT.Aberration.Assets.Scripts.UI.Menus;
 
 namespace Aberration.Assets.Scripts.UI.Menus
 {
@@ -15,12 +16,18 @@ namespace Aberration.Assets.Scripts.UI.Menus
 		private Button continueButton;
 
 		[SerializeField]
+		private Button instructionsButton;
+
+		[SerializeField]
 		private Button settingsButton;
 
 		[SerializeField]
         private Button quitButton;
 
 		[Header("Panels")]
+		[SerializeField]
+		private GameObject titlePanel;
+
 		/// <summary>
 		/// Button Panel for quick toggle to Settings menu.
 		/// </summary>
@@ -32,6 +39,9 @@ namespace Aberration.Assets.Scripts.UI.Menus
 		/// </summary>
 		[SerializeField]
 		private SettingsMenuPanel settingsPanel;
+
+		[SerializeField]
+		private InstructionsPanel instructionsPanel;
 
 		[Header("Sounds")]
 		[SerializeField]
@@ -63,10 +73,12 @@ namespace Aberration.Assets.Scripts.UI.Menus
 				continueButton.gameObject.SetActive(false);
 			}
 
+			instructionsButton.onClick.AddListener(OnInstructionsClick);
 			settingsButton.onClick.AddListener(OnSettings);
 			quitButton.onClick.AddListener(OnQuitClick);
 
 			settingsPanel.backButton.onClick.AddListener(ReturnFromSettings);
+			instructionsPanel.backButton.onClick.AddListener(ReturnFromInstructions);
 		}
 
 		private void OnStartClick()
@@ -82,8 +94,17 @@ namespace Aberration.Assets.Scripts.UI.Menus
 			ConfirmSound();
 		}
 
+		private void OnInstructionsClick()
+		{
+			titlePanel.gameObject.SetActive(false);
+			buttonPanel.gameObject.SetActive(false);
+			instructionsPanel.gameObject.SetActive(true);
+			ConfirmSound();
+		}
+
 		private void OnSettings()
 		{
+			titlePanel.gameObject.SetActive(false);
 			buttonPanel.gameObject.SetActive(false);
 			settingsPanel.gameObject.SetActive(true);
 			ConfirmSound();
@@ -95,8 +116,17 @@ namespace Aberration.Assets.Scripts.UI.Menus
 			CancelSound();
 		}
 
+		private void ReturnFromInstructions()
+		{
+			titlePanel.gameObject.SetActive(true);
+			buttonPanel.gameObject.SetActive(true);
+			instructionsPanel.gameObject.SetActive(false);
+			CancelSound();
+		}
+
 		private void ReturnFromSettings()
 		{
+			titlePanel.gameObject.SetActive(true);
 			buttonPanel.gameObject.SetActive(true);
 			settingsPanel.gameObject.SetActive(false);
 			CancelSound();

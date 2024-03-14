@@ -28,3 +28,4 @@ MonoBehaviour:
   recoverTimeSecs: 1
   combatAnimStateName: 0105_Fighting
   delayBetweenAttacks: 0.2
+  attackSound: {fileID: 8300000, guid: c1e726c46dd21eb4ca6c79bc243e75c2, type: 3}

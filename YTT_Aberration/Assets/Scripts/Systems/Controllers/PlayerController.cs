@@ -59,6 +59,12 @@ namespace Aberration
 		[SerializeField]
 		private Texture2D normalCursor, selectCursor, moveCursor, attackCursor;
 
+		[SerializeField]
+		private AudioSource audioSource;
+
+		[SerializeField]
+		private AudioClip yeetSound;
+
 		/// <summary>
 		/// How muhc upward force to add to yeet
 		/// </summary>
@@ -609,11 +615,18 @@ namespace Aberration
 
 				yeetForce = diff * yeetForceMultiplier;
 
+				bool hasYeeted = false;
 				foreach (Unit unit in selectedObjects)
 				{
 					if (unit != null)
+					{
 						unit.Yeet(yeetForce);
+						hasYeeted = true;
+					}
 				}
+
+				if (hasYeeted)
+					audioSource.PlayOneShot(yeetSound);
 			}
 		}
 

@@ -791,7 +791,6 @@ GameObject:
   m_Component:
   - component: {fileID: 6656592639711571903}
   - component: {fileID: 9204036602602544531}
-  - component: {fileID: 2594982910386886627}
   - component: {fileID: 5321247672020726721}
   - component: {fileID: 9044923926892621589}
   - component: {fileID: 4016217523359509955}
@@ -842,20 +841,6 @@ MonoBehaviour:
   - {fileID: 2100000, guid: a8edbec4d0e8d204fb479221d3d80d8d, type: 2}
   - {fileID: 2100000, guid: b7d7199c34477574c86817100c4f7011, type: 2}
   queryFace: {fileID: 232390960009715519}
---- !u!114 &2594982910386886627
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1925212891629493390}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a5daa679c7224210b92b9e381e1b05a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  soundData:
-  - {fileID: 8300000, guid: 74985816ad9ed4118a0bb19aaa3d6486, type: 3}
 --- !u!82 &5321247672020726721
 AudioSource:
   m_ObjectHideFlags: 0
@@ -865,7 +850,7 @@ AudioSource:
   m_GameObject: {fileID: 1925212891629493390}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 2878297975606143114, guid: 04556129441271b4c938271fa8614764, type: 2}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 1
@@ -969,6 +954,7 @@ MonoBehaviour:
   navAgent: {fileID: 5469554371788707562}
   animationController: {fileID: 4016217523359509955}
   unitUI: {fileID: 6988403887014310589}
+  audioSource: {fileID: 5321247672020726721}
   ragdollTargetTransform: {fileID: 4480115075606635403}
   team: {fileID: 0}
 --- !u!114 &4016217523359509955

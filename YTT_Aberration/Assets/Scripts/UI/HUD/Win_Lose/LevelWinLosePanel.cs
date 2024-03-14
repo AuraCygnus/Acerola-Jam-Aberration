@@ -18,11 +18,17 @@ namespace Aberration.Assets.Scripts.UI.HUD.Win_Lose
 		[SerializeField]
 		private TextMeshProUGUI buttonText;
 
+		[SerializeField]
+		private AudioSource audioSource;
+
+		[SerializeField]
+		private AudioClip confirmSound;
+
 		public void DisplayWin()
 		{
 			if (SceneUtils.IsFinalLevel())
 			{
-				headerText.SetText("CONGLATURATION!!!\nA WINNER IS YOU");
+				headerText.SetText("CONGRATULATIONS!!!\nThank you for completing the game!");
 				buttonText.SetText("Main Menu");
 				button.onClick.RemoveAllListeners();
 				button.onClick.AddListener(OnMainMenuClick);
@@ -46,16 +52,19 @@ namespace Aberration.Assets.Scripts.UI.HUD.Win_Lose
 
 		private void OnMainMenuClick()
 		{
+			audioSource.PlayOneShot(confirmSound, 0.5f);
 			SceneUtils.LoadMainMenu();
 		}
 
 		private void OnContinueClick()
 		{
+			audioSource.PlayOneShot(confirmSound, 0.5f);
 			SceneUtils.NextLevel();
 		}
 
 		private void OnRetryClick()
 		{
+			audioSource.PlayOneShot(confirmSound, 0.5f);
 			SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
 		}
 	}

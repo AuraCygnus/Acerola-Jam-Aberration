@@ -40,6 +40,9 @@ namespace Aberration.Assets.Scripts
 		[SerializeField]
 		private UnitUI unitUI;
 
+		[SerializeField]
+		private AudioSource audioSource;
+
 		/// <summary>
 		/// Transform to use for targetting the Unit (Generally the root of the ragdoll)
 		/// </summary>
@@ -475,6 +478,8 @@ namespace Aberration.Assets.Scripts
 		{
 			if (targetUnit != null)
 			{
+				audioSource.PlayOneShot(unitData.AttackSound, 0.8f);
+
 				// At correct point in animation Damage target
 				targetUnit.ReduceHP(CombatUtils.CalculateDamage(unitData.Attack, targetUnit.unitData.Armour));
 

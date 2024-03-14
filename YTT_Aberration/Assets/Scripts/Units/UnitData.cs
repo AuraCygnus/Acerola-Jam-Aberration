@@ -123,5 +123,13 @@ namespace Aberration
         {
             get { return delayBetweenAttacks; }
         }
+
+        [Header("Sound")]
+        [SerializeField]
+        private AudioClip attackSound;
+        public AudioClip AttackSound
+        {
+            get { return attackSound; }
+        }
     }
 }
